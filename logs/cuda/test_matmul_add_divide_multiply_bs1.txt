@@ -1,0 +1,432 @@
+W0616 15:01:40.330447  6612 gpu_resources.cc:116] Please NOTE: device: 0, GPU Compute Capability: 8.0, Driver API Version: 12.2, Runtime API Version: 12.8
+W0616 15:01:40.543052  6612 eager_utils.cc:3618] Paddle static graph(PIR) not support input out tensor for now!!!!!
+I0616 15:01:40.598153  6612 add_cinn_pass.cc:334] Compiling subgraph with CINN backend ...
+I0616 15:01:40.604391  6612 add_cinn_pass.cc:291] Enable AP Generic DRR Pass
+E0616 15:01:40.604426  6612 add_cinn_pass.cc:236] before ConvertPdFacadeToApFacadePass:
+{
+    (%0) = "pd_op.data" () {dtype:float16,name:"x",place:Place(undefined:0),shape:[1,3136,384],stop_gradient:[false]} : () -> tensor<1x3136x384xf16>
+    (%1) = "pd_op.data" () {dtype:float16,name:"w",place:Place(undefined:0),shape:[384,96],stop_gradient:[false]} : () -> tensor<384x96xf16>
+    (%2) = "pd_op.data" () {dtype:float16,name:"b",place:Place(undefined:0),shape:[3136,96],stop_gradient:[false]} : () -> tensor<3136x96xf16>
+    (%3) = "pd_op.data" () {dtype:float16,name:"e1",place:Place(undefined:0),shape:[1,3136,96],stop_gradient:[false]} : () -> tensor<1x3136x96xf16>
+    (%4) = "pd_op.data" () {dtype:float16,name:"e2",place:Place(undefined:0),shape:[1,3136,96],stop_gradient:[false]} : () -> tensor<1x3136x96xf16>
+    (%5) = "pd_op.matmul" (%0, %1) {stop_gradient:[false],transpose_x:false,transpose_y:false} : (tensor<1x3136x384xf16>, tensor<384x96xf16>) -> tensor<1x3136x96xf16>
+    (%6) = "cinn_op.fusion" () -> tensor<1x3136x96xf16> {
+        (%7) = "cinn_op.broadcast" (%2) {broadcast_axes:[1,2],out_shape:[1,3136,96],stop_gradient:[false]} : (tensor<3136x96xf16>) -> tensor<1x3136x96xf16>
+        (%8) = "pd_op.add" (%5, %7) {stop_gradient:[false]} : (tensor<1x3136x96xf16>, tensor<1x3136x96xf16>) -> tensor<1x3136x96xf16>
+        (%9) = "pd_op.divide" (%8, %3) {stop_gradient:[false]} : (tensor<1x3136x96xf16>, tensor<1x3136x96xf16>) -> tensor<1x3136x96xf16>
+        (%10) = "pd_op.multiply" (%9, %4) {stop_gradient:[false]} : (tensor<1x3136x96xf16>, tensor<1x3136x96xf16>) -> tensor<1x3136x96xf16>
+        () = "cf.yield" (%10) {} : (tensor<1x3136x96xf16>) -> 
+    }
+    () = "builtin.shadow_output" (%6) {output_name:"output_0"} : (tensor<1x3136x96xf16>) -> 
+}
+E0616 15:01:40.604534  6612 add_cinn_pass.cc:241] after ConvertPdFacadeToApFacadePass:
+{
+    (%0) = "pd_op.data" () {dtype:float16,name:"x",place:Place(undefined:0),shape:[1,3136,384],stop_gradient:[false]} : () -> tensor<1x3136x384xf16>
+    (%1) = "pd_op.data" () {dtype:float16,name:"w",place:Place(undefined:0),shape:[384,96],stop_gradient:[false]} : () -> tensor<384x96xf16>
+    (%2) = "pd_op.data" () {dtype:float16,name:"b",place:Place(undefined:0),shape:[3136,96],stop_gradient:[false]} : () -> tensor<3136x96xf16>
+    (%3) = "pd_op.data" () {dtype:float16,name:"e1",place:Place(undefined:0),shape:[1,3136,96],stop_gradient:[false]} : () -> tensor<1x3136x96xf16>
+    (%4) = "pd_op.data" () {dtype:float16,name:"e2",place:Place(undefined:0),shape:[1,3136,96],stop_gradient:[false]} : () -> tensor<1x3136x96xf16>
+    (%5) = "pd_op.matmul" (%0, %1) {stop_gradient:[false],transpose_x:false,transpose_y:false} : (tensor<1x3136x384xf16>, tensor<384x96xf16>) -> tensor<1x3136x96xf16>
+    (%6) = "cinn_op.fusion" () -> tensor<1x3136x96xf16> {
+        (%7) = "cinn_op.broadcast" (%2) {broadcast_axes:[1,2],out_shape:[1,3136,96],stop_gradient:[false]} : (tensor<3136x96xf16>) -> tensor<1x3136x96xf16>
+        (%8) = "pd_op.add" (%5, %7) {stop_gradient:[false]} : (tensor<1x3136x96xf16>, tensor<1x3136x96xf16>) -> tensor<1x3136x96xf16>
+        (%9) = "pd_op.divide" (%8, %3) {stop_gradient:[false]} : (tensor<1x3136x96xf16>, tensor<1x3136x96xf16>) -> tensor<1x3136x96xf16>
+        (%10) = "pd_op.multiply" (%9, %4) {stop_gradient:[false]} : (tensor<1x3136x96xf16>, tensor<1x3136x96xf16>) -> tensor<1x3136x96xf16>
+        () = "cf.yield" (%10) {} : (tensor<1x3136x96xf16>) -> 
+    }
+    () = "builtin.shadow_output" (%6) {output_name:"output_0"} : (tensor<1x3136x96xf16>) -> 
+}
+E0616 15:01:40.741032  6612 add_cinn_pass.cc:261] before ApGenericAbstractDrrPass:
+{
+    (%0) = "pd_op.data" () {dtype:float16,name:"x",place:Place(undefined:0),shape:[1,3136,384],stop_gradient:[false]} : () -> tensor<1x3136x384xf16>
+    (%1) = "pd_op.data" () {dtype:float16,name:"w",place:Place(undefined:0),shape:[384,96],stop_gradient:[false]} : () -> tensor<384x96xf16>
+    (%2) = "pd_op.data" () {dtype:float16,name:"b",place:Place(undefined:0),shape:[3136,96],stop_gradient:[false]} : () -> tensor<3136x96xf16>
+    (%3) = "pd_op.data" () {dtype:float16,name:"e1",place:Place(undefined:0),shape:[1,3136,96],stop_gradient:[false]} : () -> tensor<1x3136x96xf16>
+    (%4) = "pd_op.data" () {dtype:float16,name:"e2",place:Place(undefined:0),shape:[1,3136,96],stop_gradient:[false]} : () -> tensor<1x3136x96xf16>
+    (%5) = "pd_op.matmul" (%0, %1) {stop_gradient:[false],transpose_x:false,transpose_y:false} : (tensor<1x3136x384xf16>, tensor<384x96xf16>) -> tensor<1x3136x96xf16>
+    (%6) = "cinn_op.fusion" () -> tensor<1x3136x96xf16> {
+        (%7) = "cinn_op.broadcast" (%2) {broadcast_axes:[1,2],out_shape:[1,3136,96],stop_gradient:[false]} : (tensor<3136x96xf16>) -> tensor<1x3136x96xf16>
+        (%8) = "pd_op.add" (%5, %7) {stop_gradient:[false]} : (tensor<1x3136x96xf16>, tensor<1x3136x96xf16>) -> tensor<1x3136x96xf16>
+        (%9) = "pd_op.divide" (%8, %3) {stop_gradient:[false]} : (tensor<1x3136x96xf16>, tensor<1x3136x96xf16>) -> tensor<1x3136x96xf16>
+        (%10) = "pd_op.multiply" (%9, %4) {stop_gradient:[false]} : (tensor<1x3136x96xf16>, tensor<1x3136x96xf16>) -> tensor<1x3136x96xf16>
+        () = "cf.yield" (%10) {} : (tensor<1x3136x96xf16>) -> 
+    }
+    () = "builtin.shadow_output" (%6) {output_name:"output_0"} : (tensor<1x3136x96xf16>) -> 
+}
+E0616 15:01:40.769577  6612 builtin_functions.cc:126] Print
+before-umprime:  {
+    (%0) = "pd_op.data" () {dtype:float16,name:"input4",place:Place(undefined:0),shape:[3136,96],stop_gradient:[true]} : () -> tensor<3136x96xf16>
+    (%1) = "pd_op.data" () {dtype:float16,name:"mm_out",place:Place(undefined:0),shape:[1,3136,96],stop_gradient:[true]} : () -> tensor<1x3136x96xf16>
+    (%2) = "pd_op.data" () {dtype:float16,name:"input3",place:Place(undefined:0),shape:[1,3136,96],stop_gradient:[true]} : () -> tensor<1x3136x96xf16>
+    (%3) = "pd_op.data" () {dtype:float16,name:"input2",place:Place(undefined:0),shape:[1,3136,96],stop_gradient:[true]} : () -> tensor<1x3136x96xf16>
+    (%4) = "cinn_op.broadcast" (%0) {broadcast_axes:[1,2],out_shape:[1,3136,96],stop_gradient:[false]} : (tensor<3136x96xf16>) -> tensor<1x3136x96xf16>
+    (%5) = "pd_op.add" (%1, %4) {stop_gradient:[false]} : (tensor<1x3136x96xf16>, tensor<1x3136x96xf16>) -> tensor<1x3136x96xf16>
+    (%6) = "pd_op.divide" (%5, %2) {stop_gradient:[false]} : (tensor<1x3136x96xf16>, tensor<1x3136x96xf16>) -> tensor<1x3136x96xf16>
+    (%7) = "pd_op.multiply" (%6, %3) {stop_gradient:[false]} : (tensor<1x3136x96xf16>, tensor<1x3136x96xf16>) -> tensor<1x3136x96xf16>
+    () = "cf.yield" (%7) {} : (tensor<1x3136x96xf16>) -> 
+}
+E0616 15:01:40.771515  6612 builtin_functions.cc:126] Print
+before-access_topo_pass {
+    (%0) = "pd_op.data" () {dtype:float16,name:"input4",place:Place(undefined:0),shape:[3136,96],stop_gradient:[true]} : () -> tensor<3136x96xf16>
+    (%1) = "pd_op.data" () {dtype:float16,name:"mm_out",place:Place(undefined:0),shape:[1,3136,96],stop_gradient:[true]} : () -> tensor<1x3136x96xf16>
+    (%2) = "pd_op.data" () {dtype:float16,name:"input3",place:Place(undefined:0),shape:[1,3136,96],stop_gradient:[true]} : () -> tensor<1x3136x96xf16>
+    (%3) = "pd_op.data" () {dtype:float16,name:"input2",place:Place(undefined:0),shape:[1,3136,96],stop_gradient:[true]} : () -> tensor<1x3136x96xf16>
+    (%4) = "cinn_op.broadcast" (%0) {broadcast_axes:[1,2],out_shape:[1,3136,96],stop_gradient:[false]} : (tensor<3136x96xf16>) -> tensor<1x3136x96xf16>
+    (%5) = "pd_op.add" (%1, %4) {stop_gradient:[false]} : (tensor<1x3136x96xf16>, tensor<1x3136x96xf16>) -> tensor<1x3136x96xf16>
+    (%6) = "pd_op.divide" (%5, %2) {stop_gradient:[false]} : (tensor<1x3136x96xf16>, tensor<1x3136x96xf16>) -> tensor<1x3136x96xf16>
+    (%7) = "pd_op.multiply" (%6, %3) {stop_gradient:[false]} : (tensor<1x3136x96xf16>, tensor<1x3136x96xf16>) -> tensor<1x3136x96xf16>
+    () = "cf.yield" (%7) {} : (tensor<1x3136x96xf16>) -> 
+}
+E0616 15:01:40.772064  6612 builtin_functions.cc:126] Print
+inputs_name_list:  input2, input3, input4
+E0616 15:01:40.774889  6612 builtin_functions.cc:126] Print
+after-init-access_topo_pass {
+    (%0) = "pd_op.data" () {dtype:float16,name:"input4",place:Place(undefined:0),shape:[3136,96],stop_gradient:[true]} : () -> tensor<3136x96xf16>
+    (%1) = "pd_op.data" () {dtype:float16,name:"mm_out",place:Place(undefined:0),shape:[1,3136,96],stop_gradient:[true]} : () -> tensor<1x3136x96xf16>
+    (%2) = "ap_op.down_spider" (%1) {} : (tensor<1x3136x96xf16>) -> tensor<1x3136x96xf16>
+    (%3) = "pd_op.data" () {dtype:float16,name:"input3",place:Place(undefined:0),shape:[1,3136,96],stop_gradient:[true]} : () -> tensor<1x3136x96xf16>
+    (%4) = "pd_op.data" () {dtype:float16,name:"input2",place:Place(undefined:0),shape:[1,3136,96],stop_gradient:[true]} : () -> tensor<1x3136x96xf16>
+    (%5) = "cinn_op.broadcast" (%0) {broadcast_axes:[1,2],out_shape:[1,3136,96],stop_gradient:[false]} : (tensor<3136x96xf16>) -> tensor<1x3136x96xf16>
+    (%6) = "pd_op.add" (%2, %5) {stop_gradient:[false]} : (tensor<1x3136x96xf16>, tensor<1x3136x96xf16>) -> tensor<1x3136x96xf16>
+    (%7) = "pd_op.divide" (%6, %3) {stop_gradient:[false]} : (tensor<1x3136x96xf16>, tensor<1x3136x96xf16>) -> tensor<1x3136x96xf16>
+    (%8) = "pd_op.multiply" (%7, %4) {stop_gradient:[false]} : (tensor<1x3136x96xf16>, tensor<1x3136x96xf16>) -> tensor<1x3136x96xf16>
+    (%9) = "pd_op.data" () {dtype:float16,name:"output0",place:Place(undefined:0),shape:[1,3136,96],stop_gradient:[true]} : () -> tensor<1x3136x96xf16>
+    () = "ap_op.up_spider" (%8, %9) {} : (tensor<1x3136x96xf16>, tensor<1x3136x96xf16>) -> 
+}
+E0616 15:01:40.789361  6612 builtin_functions.cc:126] Print
+after-apply-access_topo_pass {
+    (%0) = "pd_op.data" () {dtype:float16,name:"input4",place:Place(undefined:0),shape:[3136,96],stop_gradient:[true]} : () -> tensor<3136x96xf16>
+    (%1) = "pd_op.data" () {dtype:float16,name:"mm_out",place:Place(undefined:0),shape:[1,3136,96],stop_gradient:[true]} : () -> tensor<1x3136x96xf16>
+    (%2) = "pd_op.full_int_array" () {dtype:int64,place:Place(cpu),stop_gradient:[true],value:[0]} : () -> tensor<1xi64>
+    (%3) = "pd_op.sum" (%1, %2) {dtype:Undefined,keepdim:false,stop_gradient:[true]} : (tensor<1x3136x96xf16>, tensor<1xi64>) -> tensor<3136x96xf16>
+    () = "ap_op.up_spider" (%3, %0) {} : (tensor<3136x96xf16>, tensor<3136x96xf16>) -> 
+    (%4) = "pd_op.data" () {dtype:float16,name:"input3",place:Place(undefined:0),shape:[1,3136,96],stop_gradient:[true]} : () -> tensor<1x3136x96xf16>
+    () = "ap_op.up_spider" (%1, %4) {} : (tensor<1x3136x96xf16>, tensor<1x3136x96xf16>) -> 
+    (%5) = "pd_op.data" () {dtype:float16,name:"input2",place:Place(undefined:0),shape:[1,3136,96],stop_gradient:[true]} : () -> tensor<1x3136x96xf16>
+    () = "ap_op.up_spider" (%1, %5) {} : (tensor<1x3136x96xf16>, tensor<1x3136x96xf16>) -> 
+    (%6) = "pd_op.data" () {dtype:float16,name:"output0",place:Place(undefined:0),shape:[1,3136,96],stop_gradient:[true]} : () -> tensor<1x3136x96xf16>
+    () = "ap_op.up_spider" (%1, %6) {} : (tensor<1x3136x96xf16>, tensor<1x3136x96xf16>) -> 
+}
+E0616 15:01:40.794554  6612 builtin_functions.cc:126] Print
+after-remove-input-output-access_topo_pass {
+}
+E0616 15:01:40.795997  6612 builtin_functions.cc:126] Print
+before-umprime:  {
+    (%0) = "pd_op.data" () {dtype:float16,name:"input4",place:Place(undefined:0),shape:[3136,96],stop_gradient:[true]} : () -> tensor<3136x96xf16>
+    (%1) = "pd_op.data" () {dtype:float16,name:"mm_out",place:Place(undefined:0),shape:[1,3136,96],stop_gradient:[true]} : () -> tensor<1x3136x96xf16>
+    (%2) = "pd_op.data" () {dtype:float16,name:"input3",place:Place(undefined:0),shape:[1,3136,96],stop_gradient:[true]} : () -> tensor<1x3136x96xf16>
+    (%3) = "pd_op.data" () {dtype:float16,name:"input2",place:Place(undefined:0),shape:[1,3136,96],stop_gradient:[true]} : () -> tensor<1x3136x96xf16>
+    (%4) = "cinn_op.broadcast" (%0) {broadcast_axes:[1,2],out_shape:[1,3136,96],stop_gradient:[false]} : (tensor<3136x96xf16>) -> tensor<1x3136x96xf16>
+    (%5) = "pd_op.add" (%1, %4) {stop_gradient:[false]} : (tensor<1x3136x96xf16>, tensor<1x3136x96xf16>) -> tensor<1x3136x96xf16>
+    (%6) = "pd_op.divide" (%5, %2) {stop_gradient:[false]} : (tensor<1x3136x96xf16>, tensor<1x3136x96xf16>) -> tensor<1x3136x96xf16>
+    (%7) = "pd_op.multiply" (%6, %3) {stop_gradient:[false]} : (tensor<1x3136x96xf16>, tensor<1x3136x96xf16>) -> tensor<1x3136x96xf16>
+    () = "cf.yield" (%7) {} : (tensor<1x3136x96xf16>) -> 
+}
+E0616 15:01:40.817157  6612 builtin_functions.cc:126] Print
+full_index_program:  {
+    (%0) = "pd_op.data" () {dtype:float16,name:"input4",place:Place(undefined:0),shape:[3136,96],stop_gradient:[true]} : () -> tensor<3136x96xf16>
+    (%1) = "ap_op.load_from_global" (%0) {index_func_unique_id:"input4"} : (tensor<3136x96xf16>) -> tensor<3136x96xf16>
+    (%2) = "pd_op.data" () {dtype:float16,name:"mm_out",place:Place(undefined:0),shape:[1,3136,96],stop_gradient:[true]} : () -> tensor<1x3136x96xf16>
+    (%3) = "pd_op.full_int_array" () {dtype:int64,place:Place(cpu),stop_gradient:[true],value:[0]} : () -> tensor<1xi64>
+    (%4) = "pd_op.sum" (%2, %3) {dtype:Undefined,keepdim:false,stop_gradient:[true]} : (tensor<1x3136x96xf16>, tensor<1xi64>) -> tensor<3136x96xf16>
+    () = "ap_op.up_spider" (%4, %1) {} : (tensor<3136x96xf16>, tensor<3136x96xf16>) -> 
+    (%5) = "ap_op.down_spider" (%2) {} : (tensor<1x3136x96xf16>) -> tensor<1x3136x96xf16>
+    (%6) = "pd_op.data" () {dtype:float16,name:"input3",place:Place(undefined:0),shape:[1,3136,96],stop_gradient:[true]} : () -> tensor<1x3136x96xf16>
+    (%7) = "ap_op.load_from_global" (%6) {index_func_unique_id:"input3"} : (tensor<1x3136x96xf16>) -> tensor<1x3136x96xf16>
+    () = "ap_op.up_spider" (%2, %7) {} : (tensor<1x3136x96xf16>, tensor<1x3136x96xf16>) -> 
+    (%8) = "pd_op.data" () {dtype:float16,name:"input2",place:Place(undefined:0),shape:[1,3136,96],stop_gradient:[true]} : () -> tensor<1x3136x96xf16>
+    (%9) = "ap_op.load_from_global" (%8) {index_func_unique_id:"input2"} : (tensor<1x3136x96xf16>) -> tensor<1x3136x96xf16>
+    () = "ap_op.up_spider" (%2, %9) {} : (tensor<1x3136x96xf16>, tensor<1x3136x96xf16>) -> 
+    (%10) = "pd_op.data" () {dtype:float16,name:"output0",place:Place(undefined:0),shape:[1,3136,96],stop_gradient:[true]} : () -> tensor<1x3136x96xf16>
+    () = "ap_op.store_to_global" (%10, %5) {index_func_unique_id:"output0"} : (tensor<1x3136x96xf16>, tensor<1x3136x96xf16>) -> 
+}
+E0616 15:01:40.826627  6612 builtin_functions.cc:126] Print
+index_func_unique_id2index_program:
+ OrderedDict([[input2, {
+    (%0) = "pd_op.data" () {dtype:float16,name:"mm_out",place:Place(undefined:0),shape:[1,3136,96],stop_gradient:[true]} : () -> tensor<1x3136x96xf16>
+    () = "cf.yield" (%0) {} : (tensor<1x3136x96xf16>) -> 
+}
+], [input3, {
+    (%0) = "pd_op.data" () {dtype:float16,name:"mm_out",place:Place(undefined:0),shape:[1,3136,96],stop_gradient:[true]} : () -> tensor<1x3136x96xf16>
+    () = "cf.yield" (%0) {} : (tensor<1x3136x96xf16>) -> 
+}
+], [input4, {
+    (%0) = "pd_op.data" () {dtype:float16,name:"mm_out",place:Place(undefined:0),shape:[1,3136,96],stop_gradient:[true]} : () -> tensor<1x3136x96xf16>
+    (%1) = "pd_op.full_int_array" () {dtype:int64,place:Place(cpu),stop_gradient:[true],value:[0]} : () -> tensor<1xi64>
+    (%2) = "pd_op.sum" (%0, %1) {dtype:Undefined,keepdim:false,stop_gradient:[true]} : (tensor<1x3136x96xf16>, tensor<1xi64>) -> tensor<3136x96xf16>
+    () = "cf.yield" (%2) {} : (tensor<3136x96xf16>) -> 
+}
+]])
+E0616 15:01:40.831332  6612 builtin_functions.cc:126] Print
+mut_program: {
+    (%0) = "pd_op.data" () {dtype:float16,name:"input4",place:Place(undefined:0),shape:[3136,96],stop_gradient:[true]} : () -> tensor<3136x96xf16>
+    (%1) = "ap_op.load_from_global" (%0) {index_func_unique_id:"input4"} : (tensor<3136x96xf16>) -> tensor<3136x96xf16>
+    (%2) = "ap_op.load_from_register" () {name:"mm_out",register_var_name:"x",symbolic_shape_or_data:,type:tensor<1x3136x96xf16>} : () -> tensor<1x3136x96xf16>
+    (%3) = "pd_op.data" () {dtype:float16,name:"input3",place:Place(undefined:0),shape:[1,3136,96],stop_gradient:[true]} : () -> tensor<1x3136x96xf16>
+    (%4) = "ap_op.load_from_global" (%3) {index_func_unique_id:"input3"} : (tensor<1x3136x96xf16>) -> tensor<1x3136x96xf16>
+    (%5) = "pd_op.data" () {dtype:float16,name:"input2",place:Place(undefined:0),shape:[1,3136,96],stop_gradient:[true]} : () -> tensor<1x3136x96xf16>
+    (%6) = "ap_op.load_from_global" (%5) {index_func_unique_id:"input2"} : (tensor<1x3136x96xf16>) -> tensor<1x3136x96xf16>
+    (%7) = "cinn_op.broadcast" (%1) {broadcast_axes:[1,2],out_shape:[1,3136,96],stop_gradient:[false]} : (tensor<3136x96xf16>) -> tensor<1x3136x96xf16>
+    (%8) = "pd_op.add" (%2, %7) {stop_gradient:[false]} : (tensor<1x3136x96xf16>, tensor<1x3136x96xf16>) -> tensor<1x3136x96xf16>
+    (%9) = "pd_op.divide" (%8, %4) {stop_gradient:[false]} : (tensor<1x3136x96xf16>, tensor<1x3136x96xf16>) -> tensor<1x3136x96xf16>
+    (%10) = "pd_op.multiply" (%9, %6) {stop_gradient:[false]} : (tensor<1x3136x96xf16>, tensor<1x3136x96xf16>) -> tensor<1x3136x96xf16>
+    () = "ap_op.store_to_register" (%10) {name:"output0",register_var_name:"out"} : (tensor<1x3136x96xf16>) -> 
+}
+E0616 15:01:40.839851  6612 builtin_functions.cc:126] Print
+generated epilogue code: float op1_out0 = static_cast<float>(args.in_ptr_0[(coord.row * args.input1_dim1 + coord.column)]);
+    float op4_out0 = static_cast<float>(args.in_ptr_1[(coord.batch * args.input0_dim1 * args.input1_dim1 + coord.row * args.input1_dim1 + coord.column)]);
+    float op6_out0 = static_cast<float>(args.in_ptr_2[(coord.batch * args.input0_dim1 * args.input1_dim1 + coord.row * args.input1_dim1 + coord.column)]);
+    float op8_out0 = static_cast<float>(x + op1_out0);
+    float op9_out0 = static_cast<float>(op8_out0 / op4_out0);
+    float op10_out0 = static_cast<float>(op9_out0 * op6_out0);
+    out = op10_out0;
+E0616 15:01:40.843501  6612 add_cinn_pass.cc:264] after ApGenericAbstractDrrPass:
+{
+    (%0) = "pd_op.data" () {dtype:float16,name:"x",place:Place(undefined:0),shape:[1,3136,384],stop_gradient:[false]} : () -> tensor<1x3136x384xf16>
+    (%1) = "pd_op.data" () {dtype:float16,name:"w",place:Place(undefined:0),shape:[384,96],stop_gradient:[false]} : () -> tensor<384x96xf16>
+    (%2) = "pd_op.data" () {dtype:float16,name:"b",place:Place(undefined:0),shape:[3136,96],stop_gradient:[false]} : () -> tensor<3136x96xf16>
+    (%3) = "pd_op.data" () {dtype:float16,name:"e1",place:Place(undefined:0),shape:[1,3136,96],stop_gradient:[false]} : () -> tensor<1x3136x96xf16>
+    (%4) = "pd_op.data" () {dtype:float16,name:"e2",place:Place(undefined:0),shape:[1,3136,96],stop_gradient:[false]} : () -> tensor<1x3136x96xf16>
+    (%5) = "builtin.combine" (%0, %1, %4, %3, %2) {stop_gradient:[false]} : (tensor<1x3136x384xf16>, tensor<384x96xf16>, tensor<1x3136x96xf16>, tensor<1x3136x96xf16>, tensor<3136x96xf16>) -> vec[tensor<1x3136x384xf16>,tensor<384x96xf16>,tensor<1x3136x96xf16>,tensor<1x3136x96xf16>,tensor<3136x96xf16>]
+    (%6) = "pd_op.ap_variadic" (%5) {code_module_lambda:"[\"lambda\",[],[\"__builtin_let__\",[[\"___131\",[\"__builtin_getattr__\",\"DataType\",{\"str\":\"void\"}]],[\"___132\",[\"__builtin_getattr__\",\"PointerType\",{\"str\":\"void_ptr\"}]],[\"___133\",[\"__builtin_getattr__\",\"PointerType\",{\"str\":\"const_float16_ptr\"}]],[\"___134\",[\"__builtin_getattr__\",\"PointerType\",{\"str\":\"const_float16_ptr\"}]],[\"___135\",[\"__builtin_getattr__\",\"PointerType\",{\"str\":\"float16_ptr\"}]],[\"___136\",[\"__builtin_getattr__\",\"DataType\",{\"str\":\"int64_t\"}]],[\"___137\",[\"__builtin_getattr__\",\"DataType\",{\"str\":\"int64_t\"}]],[\"___138\",[\"__builtin_getattr__\",\"DataType\",{\"str\":\"int64_t\"}]],[\"___139\",[\"__builtin_getattr__\",\"DataType\",{\"str\":\"int64_t\"}]],[\"___140\",[\"__builtin_getattr__\",\"PointerType\",{\"str\":\"const_float16_ptr\"}]],[\"___141\",[\"__builtin_getattr__\",\"PointerType\",{\"str\":\"const_float16_ptr\"}]],[\"___142\",[\"__builtin_getattr__\",\"PointerType\",{\"str\":\"const_float16_ptr\"}]],[\"___143\",[\"__builtin_list__\",\"___132\",\"___133\",\"___134\",\"___135\",\"___136\",\"___137\",\"___138\",\"___139\",\"___140\",\"___141\",\"___142\"]],[\"___144\",[\"FuncDeclare\",\"___131\",{\"str\":\"MatmulVariadicKernel\"},\"___143\"]],[\"___145\",[\"__builtin_list__\"]],[\"___146\",[\"__builtin_list__\"]],[\"___147\",[\"__builtin_PackedArgs__\",\"___145\",\"___146\"]],[\"___148\",[\"__builtin_getattr__\",\"Project\",{\"str\":\"FileContent\"}]],[\"___149\",[\"___148\",{\"str\":\"nvcc -std=c++20 -O3 -Xcompiler=-fPIC -arch=sm_80 --expt-relaxed-constexpr -I ${AP_CUTLASS_DIR}/include -I ${AP_CUTLASS_DIR}/tools/util/include -I /work/.virtualenvs_cuda12.8/paddle_py310_yiqun/lib/python3.10/site-packages/paddle/apy/matmul_pass/matmul -DCUTLASS_ENABLE_TENSOR_CORE_MMA=1 -DCUTLASS_DEBUG_TRACE_LEVEL=0 -DAP_ENABLE_AUTOTUNE=1 -DAP_ENABLE_DEBUG=0 --shared matmul_variadic_kernel.cu -o libmatmul_variadic_kernel.so\"}]],[\"___150\",[\"__builtin_getattr__\",\"Project\",{\"str\":\"FileContent\"}]],[\"___151\",[\"___150\",{\"str\":\"\n// auto generated codes\n#include \\"matmul.h\\"\n#include <vector>\n\nnamespace ap {\n\ntemplate <typename T>\nstruct VariadicEpilogueFunctor {\n  struct Arguments {\n    int64_t input1_dim1;\n    const half* in_ptr_0;\n    int64_t input0_dim1;\n    const half* in_ptr_1;\n    const half* in_ptr_2;\n  };\n\n  // Note: need to support vectorized operation\n  __forceinline__ __host__ __device__\n  T operator()(T x, const Arguments& args, const MatrixCoord& coord) const {\n    T out;\n    float op1_out0 = static_cast<float>(args.in_ptr_0[(coord.row * args.input1_dim1 + coord.column)]);\n    float op4_out0 = static_cast<float>(args.in_ptr_1[(coord.batch * args.input0_dim1 * args.input1_dim1 + coord.row * args.input1_dim1 + coord.column)]);\n    float op6_out0 = static_cast<float>(args.in_ptr_2[(coord.batch * args.input0_dim1 * args.input1_dim1 + coord.row * args.input1_dim1 + coord.column)]);\n    float op8_out0 = static_cast<float>(x + op1_out0);\n    float op9_out0 = static_cast<float>(op8_out0 / op4_out0);\n    float op10_out0 = static_cast<float>(op9_out0 * op6_out0);\n    out = op10_out0;\n    return out;\n  }\n};\n\ntemplate <int TuningConfigId>\nstatic void RunMatmulWithVariadicKernel(const GemmEpilogueParams &params, const half* input0, const half* input1, half* output, int64_t input0_dim0, int64_t input0_dim1, int64_t input0_dim2, int64_t input1_dim1, const half* in_ptr_0, const half* in_ptr_1, const half* in_ptr_2) {\n  using ElementT = half;\n  using ElementComputeT = float;\n\n  typename VariadicEpilogueFunctor<ElementComputeT>::Arguments epilogue_args;\n\n  epilogue_args.input1_dim1 = input1_dim1;\n  epilogue_args.in_ptr_0 = in_ptr_0;\n  epilogue_args.input0_dim1 = input0_dim1;\n  epilogue_args.in_ptr_1 = in_ptr_1;\n  epilogue_args.in_ptr_2 = in_ptr_2;\n\n  constexpr int AlignA = Alignment<ElementT, 384>::kValue;\n  constexpr int AlignB = Alignment<ElementT, 96>::kValue;\n\n  MatmulAddVariadic<ElementT, ElementComputeT, VariadicEpilogueFunctor,\n                           AlignA, AlignB, TuningConfigId>(params, epilogue_args);\n}\n\n} // namespace ap\n\nextern \\"C\\" {\n\nvoid MatmulVariadicKernel(void* stream_ptr, const half* input0, const half* input1, half* output, int64_t input0_dim0, int64_t input0_dim1, int64_t input0_dim2, int64_t input1_dim1, const half* in_ptr_0, const half* in_ptr_1, const half* in_ptr_2) {\n  std::vector<int64_t> input0_shape;\n  input0_shape.resize(3);\n  input0_shape[0] = input0_dim0;\n  input0_shape[1] = input0_dim1;\n  input0_shape[2] = input0_dim2;\n\n  std::vector<int64_t> input1_shape;\n  input1_shape.resize(2);\n  input1_shape[0] = input0_dim2;\n  input1_shape[1] = input1_dim1;\n\n  ap::GemmEpilogueParams params(\n      stream_ptr, input0, input1, nullptr, output, input0_shape, input1_shape, std::vector<int64_t>{});\n\n#if AP_ENABLE_AUTOTUNE\n  AP_AUTOTUNE_half(ap::RunMatmulWithVariadicKernel, stream_ptr, params, input0, input1, output, input0_dim0, input0_dim1, input0_dim2, input1_dim1, in_ptr_0, in_ptr_1, in_ptr_2);\n#else\n  ap::RunMatmulWithVariadicKernel<ap::DefaultConfig::kConfigId>(params, input0, input1, output, input0_dim0, input0_dim1, input0_dim2, input1_dim1, in_ptr_0, in_ptr_1, in_ptr_2);\n#endif\n}\n}\n  \"}]],[\"___152\",[\"__builtin_getattr__\",\"Project\",{\"str\":\"Directory\"}]],[\"___153\",[\"__builtin_list__\",{\"str\":\"make.sh\"},\"___149\"]],[\"___154\",[\"__builtin_list__\",{\"str\":\"matmul_variadic_kernel.cu\"},\"___151\"]],[\"___155\",[\"___152\",\"___153\",\"___154\"]],[\"___156\",[\"BuiltinSerializableAttrMap\",\"___147\"]],[\"___157\",[\"__builtin_list__\",{\"str\":\"compile_cmd\"},{\"str\":\"sh make.sh\"}]],[\"___158\",[\"__builtin_list__\",{\"str\":\"nested_files\"},\"___155\"]],[\"___159\",[\"__builtin_list__\",{\"str\":\"others\"},\"___156\"]],[\"___160\",[\"__builtin_list__\",{\"str\":\"so_relative_path\"},{\"str\":\"libmatmul_variadic_kernel.so\"}]],[\"___161\",[\"__builtin_list__\"]],[\"___162\",[\"__builtin_list__\",\"___157\",\"___158\",\"___159\",\"___160\"]],[\"___163\",[\"__builtin_PackedArgs__\",\"___161\",\"___162\"]],[\"___164\",[\"__builtin_list__\",\"___144\"]],[\"___165\",[\"Project\",\"___163\"]]],[\"CodeModule\",\"___164\",\"___165\"]]]",infer_meta_lambda:"[\"lambda\",[\"inputs\",\"outputs\"],[\"__builtin_let__\",[[\"___172\",[\"__builtin_getitem__\",\"outputs\",0]],[\"___173\",[\"__builtin_list__\",1,3136,96]],[\"___174\",[\"__builtin_setattr__\",\"___172\",{\"str\":\"dims\"}]],[\"___175\",[\"___174\",{\"str\":\"dims\"},\"___173\"]],[\"___176\",[\"__builtin_getattr__\",\"DataType\",{\"str\":\"float16\"}]],[\"___177\",[\"__builtin_setattr__\",\"___172\",{\"str\":\"dtype\"}]],[\"___178\",[\"___177\",{\"str\":\"dtype\"},\"___176\"]]],null]]",infer_symbolic_lambda:"[\"lambda\",[\"infer_ctx\",\"inputs\",\"attrs\"],[\"__builtin_let__\",[[\"___166\",[\"import\",{\"str\":\"pir\"}]],[\"pir\",[\"__builtin_identity__\",\"___166\"]],[\"___167\",[\"__builtin_getitem__\",\"outputs\",0]],[\"___168\",[\"__builtin_list__\",1,3136,96]],[\"___169\",[\"__builtin_getattr__\",\"pir\",{\"str\":\"s_tensor_shape_or_data\"}]],[\"___170\",[\"___169\",\"___168\"]],[\"___171\",[\"__builtin_list__\",\"___170\"]]],\"___171\"]]",kernel_dispatch_const_data_lambda:"[\"lambda\",[],[\"__builtin_let__\",[[\"___179\",[\"__builtin_list__\",{\"str\":\"output0\"},0]],[\"___180\",[\"__builtin_list__\"]],[\"___181\",[\"__builtin_list__\",\"___179\"]],[\"___182\",[\"__builtin_PackedArgs__\",\"___180\",\"___181\"]],[\"___183\",[\"__builtin_list__\",{\"str\":\"input0\"},0]],[\"___184\",[\"__builtin_list__\",{\"str\":\"input1\"},1]],[\"___185\",[\"__builtin_list__\",{\"str\":\"input2\"},2]],[\"___186\",[\"__builtin_list__\",{\"str\":\"input3\"},3]],[\"___187\",[\"__builtin_list__\",{\"str\":\"input4\"},4]],[\"___188\",[\"__builtin_list__\"]],[\"___189\",[\"__builtin_list__\",\"___183\",\"___184\",\"___185\",\"___186\",\"___187\"]],[\"___190\",[\"__builtin_PackedArgs__\",\"___188\",\"___189\"]],[\"___191\",[\"__builtin_identity__\",[\"lambda\",[\"ctx\"],[\"__builtin_let__\",[[\"___50\",[\"__builtin_getattr__\",\"ctx\",{\"str\":\"inputs\"}]],[\"___51\",[\"__builtin_getitem__\",\"___50\",0]],[\"___52\",[\"__builtin_getattr__\",\"___51\",{\"str\":\"data_ptr\"}]]],[\"__builtin_identity__\",\"___52\"]]]]],[\"___192\",[\"__builtin_getattr__\",\"___191\",{\"str\":\"__function__\"}]],[\"___193\",[\"__builtin_identity__\",[\"lambda\",[\"ctx\"],[\"__builtin_let__\",[[\"___53\",[\"__builtin_getattr__\",\"ctx\",{\"str\":\"inputs\"}]],[\"___54\",[\"__builtin_getitem__\",\"___53\",1]],[\"___55\",[\"__builtin_getattr__\",\"___54\",{\"str\":\"data_ptr\"}]]],[\"__builtin_identity__\",\"___55\"]]]]],[\"___194\",[\"__builtin_getattr__\",\"___193\",{\"str\":\"__function__\"}]],[\"___195\",[\"__builtin_identity__\",[\"lambda\",[\"ctx\"],[\"__builtin_let__\",[[\"___56\",[\"__builtin_getattr__\",\"ctx\",{\"str\":\"outputs\"}]],[\"___57\",[\"__builtin_getitem__\",\"___56\",0]],[\"___58\",[\"__builtin_getattr__\",\"___57\",{\"str\":\"data_ptr\"}]]],[\"__builtin_identity__\",\"___58\"]]]]],[\"___196\",[\"__builtin_getattr__\",\"___195\",{\"str\":\"__function__\"}]],[\"___197\",[\"__builtin_identity__\",[\"lambda\",[\"ctx\"],[\"__builtin_let__\",[[\"___5\",[\"__builtin_getattr__\",\"ctx\",{\"str\":\"inputs\"}]],[\"___6\",[\"__builtin_getitem__\",\"___5\",0]],[\"___7\",[\"__builtin_getattr__\",\"___6\",{\"str\":\"shape\"}]],[\"___8\",[\"__builtin_getitem__\",\"___7\",0]],[\"___9\",[\"DataValue\",\"___8\"]],[\"___11\",[\"__builtin_getattr__\",\"___9\",{\"str\":\"cast\"}]],[\"___12\",[\"__builtin_getattr__\",\"DataType\",{\"str\":\"const_int64\"}]],[\"___13\",[\"___11\",\"___12\"]],[\"___10\",[\"__builtin_identity__\",\"___13\"]]],[\"__builtin_identity__\",\"___10\"]]]]],[\"___198\",[\"__builtin_getattr__\",\"___197\",{\"str\":\"__function__\"}]],[\"___199\",[\"__builtin_identity__\",[\"lambda\",[\"ctx\"],[\"__builtin_let__\",[[\"___14\",[\"__builtin_getattr__\",\"ctx\",{\"str\":\"inputs\"}]],[\"___15\",[\"__builtin_getitem__\",\"___14\",0]],[\"___16\",[\"__builtin_getattr__\",\"___15\",{\"str\":\"shape\"}]],[\"___17\",[\"__builtin_getitem__\",\"___16\",1]],[\"___18\",[\"DataValue\",\"___17\"]],[\"___20\",[\"__builtin_getattr__\",\"___18\",{\"str\":\"cast\"}]],[\"___21\",[\"__builtin_getattr__\",\"DataType\",{\"str\":\"const_int64\"}]],[\"___22\",[\"___20\",\"___21\"]],[\"___19\",[\"__builtin_identity__\",\"___22\"]]],[\"__builtin_identity__\",\"___19\"]]]]],[\"___200\",[\"__builtin_getattr__\",\"___199\",{\"str\":\"__function__\"}]],[\"___201\",[\"__builtin_identity__\",[\"lambda\",[\"ctx\"],[\"__builtin_let__\",[[\"___23\",[\"__builtin_getattr__\",\"ctx\",{\"str\":\"inputs\"}]],[\"___24\",[\"__builtin_getitem__\",\"___23\",0]],[\"___25\",[\"__builtin_getattr__\",\"___24\",{\"str\":\"shape\"}]],[\"___26\",[\"__builtin_getitem__\",\"___25\",2]],[\"___27\",[\"DataValue\",\"___26\"]],[\"___29\",[\"__builtin_getattr__\",\"___27\",{\"str\":\"cast\"}]],[\"___30\",[\"__builtin_getattr__\",\"DataType\",{\"str\":\"const_int64\"}]],[\"___31\",[\"___29\",\"___30\"]],[\"___28\",[\"__builtin_identity__\",\"___31\"]]],[\"__builtin_identity__\",\"___28\"]]]]],[\"___202\",[\"__builtin_getattr__\",\"___201\",{\"str\":\"__function__\"}]],[\"___203\",[\"__builtin_identity__\",[\"lambda\",[\"ctx\"],[\"__builtin_let__\",[[\"___41\",[\"__builtin_getattr__\",\"ctx\",{\"str\":\"inputs\"}]],[\"___42\",[\"__builtin_getitem__\",\"___41\",1]],[\"___43\",[\"__builtin_getattr__\",\"___42\",{\"str\":\"shape\"}]],[\"___44\",[\"__builtin_getitem__\",\"___43\",1]],[\"___45\",[\"DataValue\",\"___44\"]],[\"___47\",[\"__builtin_getattr__\",\"___45\",{\"str\":\"cast\"}]],[\"___48\",[\"__builtin_getattr__\",\"DataType\",{\"str\":\"const_int64\"}]],[\"___49\",[\"___47\",\"___48\"]],[\"___46\",[\"__builtin_identity__\",\"___49\"]]],[\"__builtin_identity__\",\"___46\"]]]]],[\"___204\",[\"__builtin_getattr__\",\"___203\",{\"str\":\"__function__\"}]],[\"___205\",[\"__builtin_identity__\",[\"lambda\",[\"ctx\"],[\"__builtin_let__\",[[\"___68\",[\"__builtin_getattr__\",\"ctx\",{\"str\":\"inputs\"}]],[\"___69\",[\"__builtin_getitem__\",\"___68\",4]],[\"___70\",[\"__builtin_getattr__\",\"___69\",{\"str\":\"data_ptr\"}]]],[\"__builtin_identity__\",\"___70\"]]]]],[\"___206\",[\"__builtin_getattr__\",\"___205\",{\"str\":\"__function__\"}]],[\"___207\",[\"__builtin_identity__\",[\"lambda\",[\"ctx\"],[\"__builtin_let__\",[[\"___98\",[\"__builtin_getattr__\",\"ctx\",{\"str\":\"inputs\"}]],[\"___99\",[\"__builtin_getitem__\",\"___98\",3]],[\"___100\",[\"__builtin_getattr__\",\"___99\",{\"str\":\"data_ptr\"}]]],[\"__builtin_identity__\",\"___100\"]]]]],[\"___208\",[\"__builtin_getattr__\",\"___207\",{\"str\":\"__function__\"}]],[\"___209\",[\"__builtin_identity__\",[\"lambda\",[\"ctx\"],[\"__builtin_let__\",[[\"___128\",[\"__builtin_getattr__\",\"ctx\",{\"str\":\"inputs\"}]],[\"___129\",[\"__builtin_getitem__\",\"___128\",2]],[\"___130\",[\"__builtin_getattr__\",\"___129\",{\"str\":\"data_ptr\"}]]],[\"__builtin_identity__\",\"___130\"]]]]],[\"___210\",[\"__builtin_getattr__\",\"___209\",{\"str\":\"__function__\"}]],[\"___211\",[\"__builtin_list__\",0,1,2,3,4]],[\"___212\",[\"BuiltinSerializableAttrMap\",\"___190\"]],[\"___213\",[\"__builtin_list__\",0]],[\"___214\",[\"BuiltinSerializableAttrMap\",\"___182\"]],[\"___215\",[\"__builtin_list__\",\"___192\",\"___194\",\"___196\",\"___198\",\"___200\",\"___202\",\"___204\",\"___206\",\"___208\",\"___210\"]],[\"___216\",[\"__builtin_list__\",{\"str\":\"__builtin_ap_kernel_input_indexes_slices\"},\"___211\"]],[\"___217\",[\"__builtin_list__\",{\"str\":\"__builtin_ap_kernel_input_name_to_index\"},\"___212\"]],[\"___218\",[\"__builtin_list__\",{\"str\":\"__builtin_ap_kernel_output_indexes_slices\"},\"___213\"]],[\"___219\",[\"__builtin_list__\",{\"str\":\"__builtin_ap_kernel_output_name_to_index\"},\"___214\"]],[\"___220\",[\"__builtin_list__\",{\"str\":\"kernel_args_getters\"},\"___215\"]],[\"___221\",[\"__builtin_list__\"]],[\"___222\",[\"__builtin_list__\",\"___216\",\"___217\",\"___218\",\"___219\",\"___220\"]],[\"___223\",[\"__builtin_PackedArgs__\",\"___221\",\"___222\"]]],[\"BuiltinSerializableAttrMap\",\"___223\"]]]",num_outputs:1,rnel_dispatch_lambda:"[\"lambda\",[\"ctx\"],[\"__builtin_let__\",[[\"ap\",[\"import\",{\"str\":\"ap\"}]],[\"___448\",[\"__builtin_getattr__\",\"ctx\",{\"str\":\"get_so_function\"}]],[\"___449\",[\"___448\",{\"str\":\"MatmulVariadicKernel\"}]],[\"so_func\",[\"__builtin_identity__\",\"___449\"]],[\"___451\",[\"__builtin_getattr__\",\"ctx\",{\"str\":\"device_ctx\"}]],[\"___450\",[\"__builtin_getattr__\",\"___451\",{\"str\":\"get_stream_addr_as_void_ptr\"}]],[\"___452\",[\"___450\"]],[\"stream_ptr\",[\"__builtin_identity__\",\"___452\"]],[\"___454\",[\"__builtin_getattr__\",\"ctx\",{\"str\":\"kernel_dispatch_const_data\"}]],[\"___453\",[\"__builtin_getattr__\",\"___454\",{\"str\":\"kernel_args_getters\"}]],[\"getters\",[\"__builtin_identity__\",\"___453\"]],[\"___455\",[\"__builtin_getattr__\",\"ap\",{\"str\":\"map\"}]],[\"___457\",[\"___455\",[\"lambda\",[\"getter\"],[\"__builtin_let__\",[[\"___456\",[\"getter\",\"ctx\"]]],[\"__builtin_identity__\",\"___456\"]]],\"getters\"]],[\"___458\",[\"__builtin_starred__\",\"___457\"]],[\"___459\",[\"__builtin_list__\",\"stream_ptr\",\"___458\"]],[\"args\",[\"__builtin_identity__\",\"___459\"]],[\"___460\",[\"__builtin_getattr__\",\"ap\",{\"str\":\"apply\"}]],[\"___461\",[\"___460\",\"so_func\",\"args\"]],[\"___462\",[\"__builtin_identity__\",\"___461\"]]],[\"__builtin_identity__\",null]]]",stop_gradient:[false]} : (vec[tensor<1x3136x384xf16>,tensor<384x96xf16>,tensor<1x3136x96xf16>,tensor<1x3136x96xf16>,tensor<3136x96xf16>]) -> vec[tensor<1x3136x96xf16>]
+    (%7) = "builtin.split" (%6) {stop_gradient:[false]} : (vec[tensor<1x3136x96xf16>]) -> tensor<1x3136x96xf16>
+    () = "builtin.shadow_output" (%7) {output_name:"output_0"} : (tensor<1x3136x96xf16>) -> 
+}
+I0616 15:01:40.848137  6612 pir_interpreter.cc:1605] New Executor is Running ...
+I0616 15:01:40.848559  6612 pir_interpreter.cc:1626] pir interpreter is running by trace mode ...
+==================================================================
+-- [ProfileBestConfig] No 0, elapsed_time: 3.87174 ms
+-- [ProfileBestConfig] No 1, elapsed_time: 1.67629 ms
+-- [ProfileBestConfig] No 2, elapsed_time: 2.71872 ms
+-- [ProfileBestConfig] No 3, elapsed_time: 1.74592 ms
+-- [ProfileBestConfig] No 4, elapsed_time: 2.75558 ms
+-- [ProfileBestConfig] No 5, elapsed_time: 2.76378 ms
+-- [ProfileBestConfig] No 6, elapsed_time: 2.78733 ms
+-- [ProfileBestConfig] No 7, elapsed_time: 2.8201 ms
+-- [ProfileBestConfig] No 8, elapsed_time: 3.46214 ms
+-- [ProfileBestConfig] No 9, elapsed_time: 3.60858 ms
+-- [ProfileBestConfig] No 10, elapsed_time: 1.39264 ms
+-- [ProfileBestConfig] No 11, elapsed_time: 2.80781 ms
+-- [ProfileBestConfig] No 12, elapsed_time: 2.79347 ms
+-- [ProfileBestConfig] No 13, elapsed_time: 2.9143 ms
+-- [ProfileBestConfig] No 14, elapsed_time: 2.90304 ms
+-- [ProfileBestConfig] No 15, elapsed_time: 1.16838 ms
+-- [ProfileBestConfig] No 16, elapsed_time: 1.23392 ms
+-- [ProfileBestConfig] No 17, elapsed_time: 2.78938 ms
+-- [ProfileBestConfig] No 18, elapsed_time: 2.82829 ms
+-- [ProfileBestConfig] No 19, elapsed_time: 1.7367 ms
+-- [ProfileBestConfig] No 20, elapsed_time: 1.78893 ms
+-- [ProfileBestConfig] No 21, elapsed_time: 1.30765 ms
+-- [ProfileBestConfig] No 22, elapsed_time: 1.2585 ms
+-- [ProfileBestConfig] best config idx: 15
+==================================================================
+I0616 15:03:18.738413  6612 chrometracing_logger.cc:49] writing profiling data to ./profiler_log/host_yq02-inf-sci-k8s-a100-aa2ni5-0065.yq02.baidu.compid_6612_time_2026_06_16_15_03_18_737717.paddle_trace.json
+all prim enabled:  True
+apy_to_axpr_json /work/.virtualenvs_cuda12.8/paddle_py310_yiqun/lib/python3.10/site-packages/paddle/apy/sys/ap.py
+apy_to_axpr_json /work/.virtualenvs_cuda12.8/paddle_py310_yiqun/lib/python3.10/site-packages/paddle/apy/sys/__builtin_registry_item__.py
+apy_to_axpr_json /work/.virtualenvs_cuda12.8/paddle_py310_yiqun/lib/python3.10/site-packages/paddle/apy/sys/__builtin_trivial_op_names__.py
+apy_to_axpr_json /work/.virtualenvs_cuda12.8/paddle_py310_yiqun/lib/python3.10/site-packages/paddle/apy/sys/__builtin__.py
+apy_to_axpr_json /work/.virtualenvs_cuda12.8/paddle_py310_yiqun/lib/python3.10/site-packages/paddle/apy/device/cuda/compile_command_util.py
+apy_to_axpr_json /work/.virtualenvs_cuda12.8/paddle_py310_yiqun/lib/python3.10/site-packages/paddle/apy/matmul_pass/op_conversion_drr_pass.py
+apy_to_axpr_json /work/.virtualenvs_cuda12.8/paddle_py310_yiqun/lib/python3.10/site-packages/paddle/apy/matmul_pass/index_code_gen_value_util.py
+apy_to_axpr_json /work/.virtualenvs_cuda12.8/paddle_py310_yiqun/lib/python3.10/site-packages/paddle/apy/matmul_pass/op_compute_translator_util.py
+apy_to_axpr_json /work/.virtualenvs_cuda12.8/paddle_py310_yiqun/lib/python3.10/site-packages/paddle/apy/matmul_pass/topo_drr_pass.py
+apy_to_axpr_json /work/.virtualenvs_cuda12.8/paddle_py310_yiqun/lib/python3.10/site-packages/paddle/apy/matmul_pass/kernel_arg_translator_util.py
+apy_to_axpr_json /work/.virtualenvs_cuda12.8/paddle_py310_yiqun/lib/python3.10/site-packages/paddle/apy/matmul_pass/__main__.py
+apy_to_axpr_json /work/.virtualenvs_cuda12.8/paddle_py310_yiqun/lib/python3.10/site-packages/paddle/apy/matmul_pass/op_index_translator_util.py
+apy_to_axpr_json /work/.virtualenvs_cuda12.8/paddle_py310_yiqun/lib/python3.10/site-packages/paddle/apy/matmul_pass/matmul_epilogue_pass.py
+apy_to_axpr_json /work/.virtualenvs_cuda12.8/paddle_py310_yiqun/lib/python3.10/site-packages/paddle/apy/matmul_pass/matmul_variadic_tpl.py
+apy_to_axpr_json /work/.virtualenvs_cuda12.8/paddle_py310_yiqun/lib/python3.10/site-packages/paddle/apy/matmul_pass/program_translator_util.py
+apy_to_axpr_json /work/.virtualenvs_cuda12.8/paddle_py310_yiqun/lib/python3.10/site-packages/paddle/apy/matmul_pass/code_gen_value_util.py
+apy_to_axpr_json /work/.virtualenvs_cuda12.8/paddle_py310_yiqun/lib/python3.10/site-packages/paddle/apy/matmul_pass/index_program_translator_util.py
+apy_to_axpr_json /work/.virtualenvs_cuda12.8/paddle_py310_yiqun/lib/python3.10/site-packages/paddle/apy/matmul_pass/kernel_arg_id_util.py
+apy_to_axpr_json /work/.virtualenvs_cuda12.8/paddle_py310_yiqun/lib/python3.10/site-packages/paddle/apy/matmul_pass/low_level_ir_code_gen_ctx_util.py
+apy_to_axpr_json /work/.virtualenvs_cuda12.8/paddle_py310_yiqun/lib/python3.10/site-packages/paddle/apy/matmul_pass/matmul_variadic_ptn.py
+apy_to_axpr_json /work/.virtualenvs_cuda12.8/paddle_py310_yiqun/lib/python3.10/site-packages/paddle/apy/matmul_pass/index_drr_pass_util.py
+apy_to_axpr_json /work/.virtualenvs_cuda12.8/paddle_py310_yiqun/lib/python3.10/site-packages/paddle/apy/matmul_pass/abstract_drr.py
+apy_to_axpr_json /work/.virtualenvs_cuda12.8/paddle_py310_yiqun/lib/python3.10/site-packages/paddle/apy/matmul_pass/access_topo_drr.py
+apy_to_axpr_json /work/.virtualenvs_cuda12.8/paddle_py310_yiqun/lib/python3.10/site-packages/paddle/apy/matmul_pass/umprime.py
+
+Benchmark_for_eager:
+
+-------------------Device Summary-------------------
+------------------------------  --------------------  
+Device                          Utilization (%)       
+------------------------------  --------------------  
+CPU(Process)                    150.00                
+CPU(System)                     92.09                 
+GPU0                            10.68                 
+------------------------------  --------------------  
+Note:
+CPU(Process) Utilization = Current process CPU time over all cpu cores / elapsed time, so max utilization can be reached 100% * number of cpu cores.
+CPU(System) Utilization = All processes CPU time over all cpu cores(busy time) / (busy time + idle time).
+GPU Utilization = Current process GPU time / elapsed time.
+----------------------------------------------------
+
+
+---------------------------------------------Overview Summary---------------------------------------------
+Time unit: ms
+-------------------------  -------------------------  -------------------------  -------------------------  
+Event Type                 Calls                      CPU Time                   Ratio (%)                  
+-------------------------  -------------------------  -------------------------  -------------------------  
+ProfileStep                100                        16.62                      100.00                     
+  UserDefined              400                        13.98                      84.09                      
+  Operator                 400                        12.40                      74.59                      
+  DygraphKernelLaunch      400                        7.23                       43.47                      
+  CudaRuntime              2700                       4.24                       25.49                      
+  OperatorInner            800                        1.46                       8.77                       
+-------------------------  -------------------------  -------------------------  -------------------------  
+                           Calls                      GPU Time                   Ratio (%)                  
+-------------------------  -------------------------  -------------------------  -------------------------  
+  Kernel                   400                        1.77                       10.68                      
+-------------------------  -------------------------  -------------------------  -------------------------  
+Note:
+In this table, We sum up all collected events in terms of event type.
+The time of events collected on host are presented as CPU Time, and as GPU Time if on device.
+Events with different types may overlap or inclusion, e.g. Operator includes OperatorInner, so the sum of ratios is not 100%.
+The time of events in the same type with overlap will not calculate twice, and all time is summed after merged.
+Example:
+Thread 1:
+  Operator: |___________|     |__________|
+Thread 2:
+  Operator:   |____________|     |___|
+After merged:
+  Result:   |______________|  |__________|
+
+----------------------------------------------------------------------------------------------------------
+
+
+----------------------------------------------------------------------Operator Summary----------------------------------------------------------------------
+Time unit: ms
+----------------------------------------------------  ------  ----------------------------------------  ----------------------------------------  ----------  
+Name                                                  Calls   CPU Total / Avg / Max / Min / Ratio(%)    GPU Total / Avg / Max / Min / Ratio(%)    FLOPs       
+----------------------------------------------------  ------  ----------------------------------------  ----------------------------------------  ----------  
+-----------------------------------------------------------------Thread: All threads merged-----------------------------------------------------------------
+matmul dygraph                                        100     4.68 / 0.05 / 0.22 / 0.04 / 37.74         0.80 / 0.01 / 0.01 / 0.01 / 44.93         0           
+  matmul node_creation                                100     0.18 / 0.00 / 0.01 / 0.00 / 3.90          0.00 / 0.00 / 0.00 / 0.00 / 0.00          -           
+  matmul infer_meta                                   100     0.20 / 0.00 / 0.01 / 0.00 / 4.24          0.00 / 0.00 / 0.00 / 0.00 / 0.00          -           
+  matmul kernel launch                                100     3.26 / 0.03 / 0.20 / 0.02 / 69.65         0.80 / 0.01 / 0.01 / 0.01 / 100.00        -           
+    ampere_fp16_s16816gemm_fp16_128x64_ldg8_f2f_s...  100     - / - / - / - / -                         0.80 / 0.01 / 0.01 / 0.01 / 100.00        -           
+add dygraph                                           100     2.87 / 0.03 / 0.06 / 0.02 / 23.18         0.31 / 0.00 / 0.00 / 0.00 / 17.60         0           
+  add node_creation                                   100     0.20 / 0.00 / 0.01 / 0.00 / 6.85          0.00 / 0.00 / 0.00 / 0.00 / 0.00          -           
+  add infer_meta                                      100     0.19 / 0.00 / 0.01 / 0.00 / 6.78          0.00 / 0.00 / 0.00 / 0.00 / 0.00          -           
+  add kernel launch                                   100     1.51 / 0.02 / 0.04 / 0.01 / 52.70         0.31 / 0.00 / 0.00 / 0.00 / 100.00        -           
+    void phi::funcs::VectorizedBroadcastKernel<ph...  100     - / - / - / - / -                         0.31 / 0.00 / 0.00 / 0.00 / 100.00        -           
+multiply dygraph                                      100     2.46 / 0.02 / 0.04 / 0.02 / 19.81         0.31 / 0.00 / 0.00 / 0.00 / 17.47         0           
+  multiply infer_meta                                 100     0.09 / 0.00 / 0.00 / 0.00 / 3.51          0.00 / 0.00 / 0.00 / 0.00 / 0.00          -           
+  multiply kernel launch                              100     1.21 / 0.01 / 0.02 / 0.01 / 49.14         0.31 / 0.00 / 0.00 / 0.00 / 100.00        -           
+    void phi::funcs::VectorizedBroadcastKernel<ph...  100     - / - / - / - / -                         0.31 / 0.00 / 0.00 / 0.00 / 100.00        -           
+  multiply node_creation                              100     0.41 / 0.00 / 0.01 / 0.00 / 16.52         0.00 / 0.00 / 0.00 / 0.00 / 0.00          -           
+divide dygraph                                        100     2.39 / 0.02 / 0.04 / 0.02 / 19.27         0.36 / 0.00 / 0.00 / 0.00 / 20.01         0           
+  divide node_creation                                100     0.12 / 0.00 / 0.00 / 0.00 / 4.96          0.00 / 0.00 / 0.00 / 0.00 / 0.00          -           
+  divide infer_meta                                   100     0.07 / 0.00 / 0.00 / 0.00 / 3.10          0.00 / 0.00 / 0.00 / 0.00 / 0.00          -           
+  divide kernel launch                                100     1.25 / 0.01 / 0.02 / 0.01 / 52.15         0.36 / 0.00 / 0.00 / 0.00 / 100.00        -           
+    void phi::funcs::VectorizedBroadcastKernel<ph...  100     - / - / - / - / -                         0.36 / 0.00 / 0.00 / 0.00 / 100.00        -           
+----------------------------------------------------  ------  ----------------------------------------  ----------------------------------------  ----------  
+
+
+---------------------------------------------------------------Kernel Summary---------------------------------------------------------------
+Time unit: ms
+------------------------------------------------------------------------------------------  ------  ----------------------------------------  
+Name                                                                                        Calls   GPU Total / Avg / Max / Min / Ratio(%)    
+------------------------------------------------------------------------------------------  ------  ----------------------------------------  
+ampere_fp16_s16816gemm_fp16_128x64_ldg8_f2f_stages_64x4_nn                                  100     0.80 / 0.01 / 0.01 / 0.01 / 44.93         
+void phi::funcs::VectorizedBroadcastKernel<phi::funcs::DivideFunctor<phi::dtype::float1...  100     0.36 / 0.00 / 0.00 / 0.00 / 20.01         
+void phi::funcs::VectorizedBroadcastKernel<phi::funcs::AddFunctor<phi::dtype::float16>,...  100     0.31 / 0.00 / 0.00 / 0.00 / 17.60         
+void phi::funcs::VectorizedBroadcastKernel<phi::funcs::MultiplyFunctor<phi::dtype::floa...  100     0.31 / 0.00 / 0.00 / 0.00 / 17.47         
+------------------------------------------------------------------------------------------  ------  ----------------------------------------  
+
+
+I0616 15:03:19.168330  6612 chrometracing_logger.cc:49] writing profiling data to ./profiler_log/host_yq02-inf-sci-k8s-a100-aa2ni5-0065.yq02.baidu.compid_6612_time_2026_06_16_15_03_19_168048.paddle_trace.json
+.
+----------------------------------------------------------------------
+Ran 1 test in 99.181s
+
+OK
+
+============================================Perf Summary============================================
+Time Unit: s, IPS Unit: steps/s
+|                 |       avg       |       max       |       min       |
+|    batch_cost   |     0.00091     |     0.04883     |     0.00015     |
+|       ips       |    1100.33786   |    6524.29166   |     20.47889    |
+
+Benchmark_for_AP:
+
+-------------------Device Summary-------------------
+------------------------------  --------------------  
+Device                          Utilization (%)       
+------------------------------  --------------------  
+CPU(Process)                    120.00                
+CPU(System)                     91.90                 
+GPU0                            2.29                  
+------------------------------  --------------------  
+Note:
+CPU(Process) Utilization = Current process CPU time over all cpu cores / elapsed time, so max utilization can be reached 100% * number of cpu cores.
+CPU(System) Utilization = All processes CPU time over all cpu cores(busy time) / (busy time + idle time).
+GPU Utilization = Current process GPU time / elapsed time.
+----------------------------------------------------
+
+
+---------------------------------------------Overview Summary---------------------------------------------
+Time unit: ms
+-------------------------  -------------------------  -------------------------  -------------------------  
+Event Type                 Calls                      CPU Time                   Ratio (%)                  
+-------------------------  -------------------------  -------------------------  -------------------------  
+ProfileStep                100                        47.95                      100.00                     
+  UserDefined              400                        37.86                      78.97                      
+  Operator                 200                        36.68                      76.50                      
+  StaticKernelLaunch       100                        30.16                      62.89                      
+  CudaRuntime              900                        2.04                       4.25                       
+-------------------------  -------------------------  -------------------------  -------------------------  
+                           Calls                      GPU Time                   Ratio (%)                  
+-------------------------  -------------------------  -------------------------  -------------------------  
+  Kernel                   100                        1.10                       2.29                       
+-------------------------  -------------------------  -------------------------  -------------------------  
+Note:
+In this table, We sum up all collected events in terms of event type.
+The time of events collected on host are presented as CPU Time, and as GPU Time if on device.
+Events with different types may overlap or inclusion, e.g. Operator includes OperatorInner, so the sum of ratios is not 100%.
+The time of events in the same type with overlap will not calculate twice, and all time is summed after merged.
+Example:
+Thread 1:
+  Operator: |___________|     |__________|
+Thread 2:
+  Operator:   |____________|     |___|
+After merged:
+  Result:   |______________|  |__________|
+
+----------------------------------------------------------------------------------------------------------
+
+
+----------------------------------------------------------------------Operator Summary----------------------------------------------------------------------
+Time unit: ms
+----------------------------------------------------  ------  ----------------------------------------  ----------------------------------------  ----------  
+Name                                                  Calls   CPU Total / Avg / Max / Min / Ratio(%)    GPU Total / Avg / Max / Min / Ratio(%)    FLOPs       
+----------------------------------------------------  ------  ----------------------------------------  ----------------------------------------  ----------  
+-----------------------------------------------------------------Thread: All threads merged-----------------------------------------------------------------
+pd_op.ap_variadic                                     100     36.59 / 0.37 / 0.42 / 0.36 / 99.74        1.10 / 0.01 / 0.01 / 0.01 / 100.00        0           
+  PhiKernelInstruction::infermeta                     100     5.78 / 0.06 / 0.07 / 0.06 / 15.79         0.00 / 0.00 / 0.00 / 0.00 / 0.00          -           
+  ap_variadic kernel launch                           100     30.16 / 0.30 / 0.34 / 0.29 / 82.42        1.10 / 0.01 / 0.01 / 0.01 / 100.00        -           
+    _ZN7cutlass7Kernel2INS_4gemm6kernel13GemmUniv...  100     - / - / - / - / -                         1.10 / 0.01 / 0.01 / 0.01 / 100.00        -           
+builtin_combine_instruction                           100     0.09 / 0.00 / 0.00 / 0.00 / 0.26          0.00 / 0.00 / 0.00 / 0.00 / 0.00          0           
+----------------------------------------------------  ------  ----------------------------------------  ----------------------------------------  ----------  
+
+
+---------------------------------------------------------------Kernel Summary---------------------------------------------------------------
+Time unit: ms
+------------------------------------------------------------------------------------------  ------  ----------------------------------------  
+Name                                                                                        Calls   GPU Total / Avg / Max / Min / Ratio(%)    
+------------------------------------------------------------------------------------------  ------  ----------------------------------------  
+_ZN7cutlass7Kernel2INS_4gemm6kernel13GemmUniversalINS1_11threadblock13MmaMultistageINS1...  100     1.10 / 0.01 / 0.01 / 0.01 / 100.00        
+------------------------------------------------------------------------------------------  ------  ----------------------------------------  
+
+
+
+============================================Perf Summary============================================
+Time Unit: s, IPS Unit: steps/s
+|                 |       avg       |       max       |       min       |
+|    batch_cost   |     0.00071     |     0.01660     |     0.00048     |
+|       ips       |    1416.09620   |    2091.61250   |     60.23345    |
+
+EagerTime: 1.7700 ms, APTime: 1.1000 ms, Speedup: 1.61x
+

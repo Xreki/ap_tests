@@ -2,7 +2,7 @@
 
 export CUDA_VISIBLE_DEVICES=1
 
-# Add in https://github.com/PaddlePaddle/Paddle/pull/79083
+# https://github.com/PaddlePaddle/Paddle/pull/79083 添加,通过环境变量配置 AP 使用的 cutlass 路径
 export AP_CUTLASS_DIR=/work/Paddle/third_party/cutlass
 
 export FLAGS_prim_all=True
@@ -28,7 +28,7 @@ mkdir -p "${LOG_DIR}"
 for test in "${TESTS[@]}"; do
     for bs in "${BATCH_SIZES[@]}"; do
         log_file="${LOG_DIR}/${test%.py}_bs${bs}.txt"
-        echo ">>> Running ${test} with batch_size=${bs}"
+        echo ">>> Running tests/${test} with batch_size=${bs}"
         echo ">>> Log: ${log_file}"
         echo
         python tests/${test} --batch_size ${bs} > ${log_file} 2>&1

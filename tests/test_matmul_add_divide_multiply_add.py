@@ -30,7 +30,7 @@ class TestMatmulAddDivideMultiplyAdd(test_ap_base.APTestBase):
 
         self.x_shape = [matmul_config.B, matmul_config.M, matmul_config.K]
         self.y_shape = [matmul_config.K, matmul_config.N]
-        self.b_shape = [matmul_config.M, matmul_config.N]
+        self.b_shape = [matmul_config.N]
         self.e1_shape = [matmul_config.B, matmul_config.M, matmul_config.N]
         self.e2_shape = [matmul_config.B, matmul_config.M, matmul_config.N]
         self.e3_shape = [matmul_config.B, matmul_config.M, matmul_config.N]
@@ -45,7 +45,7 @@ class TestMatmulAddDivideMultiplyAdd(test_ap_base.APTestBase):
         def foo(
             x: pct.Tensor([B, M, K], DType),
             w: pct.Tensor([K, N], DType),
-            b: pct.Tensor([M, N], DType),
+            b: pct.Tensor([N], DType),
             e1: pct.Tensor([B, M, N], DType),
             e2: pct.Tensor([B, M, N], DType),
             e3: pct.Tensor([B, M, N], DType),
