@@ -52,19 +52,22 @@ class TestMatmulAddGelu(test_ap_base.APTestBase):
         return foo
 
     def test_subgraph(self):
+        logger = test_ap_base.logger
+        logger.info("Start test: %s", self.id())
         tensor_args = self.init_tensors(self.dtype, [self.x_shape, self.y_shape, self.b_shape])
         foo = self.get_subgraph()
         fused_foo = self.get_compiled_func(foo, tensor_args)
         self.check_accuracy(fused_foo, foo, tensor_args)
+        logger.info("Accuracy check passed.")
 
-        print("\nBenchmark_for_eager:\n")
+        logger.info("Benchmark_for_eager:")
         eager_time = test_ap_base.bench_device_time(foo, tensor_args)
 
-        print("\nBenchmark_for_AP:\n")
+        logger.info("Benchmark_for_AP:")
         ap_time = test_ap_base.bench_device_time(fused_foo, tensor_args)
 
         speedup = eager_time / ap_time if eager_time and ap_time else None
-        print(f"\nEagerTime: {eager_time:.4f} ms, APTime: {ap_time:.4f} ms, Speedup: {speedup:.2f}x\n")
+        logger.info("EagerTime: %.4f ms, APTime: %.4f ms, Speedup: %.2fx", eager_time, ap_time, speedup)
 
 
 if __name__ == "__main__":

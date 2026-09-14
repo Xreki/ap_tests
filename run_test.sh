@@ -25,12 +25,35 @@ BATCH_SIZES=(1 8 32)
 LOG_DIR=logs
 mkdir -p "${LOG_DIR}"
 
+echo "========================================================================"
+echo " AP Fusion Test Suite"
+echo " Start time : $(date '+%Y-%m-%d %H:%M:%S')"
+echo " Tests      : ${#TESTS[@]}"
+echo " Batch sizes: ${BATCH_SIZES[*]}"
+echo " Log dir    : ${LOG_DIR}"
+echo "========================================================================"
+echo
+
+suite_start=$(date +%s)
+
 for test in "${TESTS[@]}"; do
     for bs in "${BATCH_SIZES[@]}"; do
         log_file="${LOG_DIR}/${test%.py}_bs${bs}.txt"
-        echo ">>> Running tests/${test} with batch_size=${bs}"
+        echo "------------------------------------------------------------------------"
+        echo ">>> [$(date '+%Y-%m-%d %H:%M:%S')] Running tests/${test} with batch_size=${bs}"
         echo ">>> Log: ${log_file}"
-        echo
+        case_start=$(date +%s)
         python tests/${test} --batch_size ${bs} > ${log_file} 2>&1
+        status=$?
+        case_end=$(date +%s)
+        echo ">>> [$(date '+%Y-%m-%d %H:%M:%S')] Finished in $((case_end - case_start))s, exit code ${status}"
+        echo
     done
 done
+
+suite_end=$(date +%s)
+
+echo "========================================================================"
+echo " End time      : $(date '+%Y-%m-%d %H:%M:%S')"
+echo " Total elapsed : $((suite_end - suite_start))s"
+echo "========================================================================"

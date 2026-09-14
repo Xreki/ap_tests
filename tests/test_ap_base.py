@@ -15,6 +15,7 @@
 import os
 import re
 import sys
+import logging
 import argparse
 import unittest
 import collections
@@ -31,6 +32,15 @@ os.environ["AP_WORKSPACE_DIR"] = "/tmp/paddle_ap_workspace"
 # Optional CLI override for the matmul batch size (B). When set via main(),
 # MatmulConfig.__post_init__ uses it instead of the value passed in each test.
 _BATCH_SIZE_OVERRIDE = None
+
+
+logging.basicConfig(
+    stream=sys.stdout,
+    level=logging.INFO,
+    format="[%(asctime)s.%(msecs)03d] [%(levelname)s] %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+logger = logging.getLogger("ap_tests")
 
 
 def get_backend_device():
@@ -76,7 +86,7 @@ def _summary_profiler_kernel_time(prof):
             prof.profiler_result.get_extra_info(),
         )
         summary_text = profiler.profiler_statistic._build_table(statistic_data)
-        print(summary_text)
+        logger.info("Profiler summary:\n%s", summary_text)
         kernel_info = _parse_kernel_time(summary_text)
         if kernel_info:
             return kernel_info["gpu_time"]
