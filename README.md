@@ -2,10 +2,10 @@
 
 PaddlePaddle AP (Abstract Pass) 算子融合的功能与性能测试集。
 
-每个用例构造一个 `matmul + 若干 elementwise/broadcast` 的子图，分别用以下两种方式执行并对比：
+每个用例构造一个 `matmul/conv2d + elementwise/broadcast` 的子图，分别用以下两种方式执行并对比：
 
 - **Eager**：PaddlePaddle 动态图逐算子执行；
-- **AP**：通过 `paddle.incubate.cc.compile` 编译，将 matmul 的 epilogue（bias 及后续 elementwise/broadcast）融合进一个 CUTLASS kernel。
+- **AP**：通过 `paddle.incubate.cc.compile` 编译，将 matmul / conv2d 的 epilogue（bias 及后续 elementwise/broadcast）融合进一个 CUTLASS kernel。
 
 测试会校验两者的数值精度，并分别 benchmark 二者的 GPU 耗时、输出加速比。
 
@@ -13,18 +13,25 @@ PaddlePaddle AP (Abstract Pass) 算子融合的功能与性能测试集。
 
 ```
 ap_tests/
-├── run_test.sh                 # 批量运行脚本（遍历用例 + batch_size）
+├── run_test.sh                 # 批量运行脚本（可选 matmul / conv2d，遍历用例 + batch_size，末尾打印加速比汇总）
+├── tools/
+│   └── extract_perf.py         # 从日志提取 EagerTime / APTime / Speedup 并汇总
 ├── tests/
 │   ├── test_ap_base.py         # 测试基类：编译、精度校验、benchmark、main 入口
 │   ├── test_matmul_add_relu.py
 │   ├── test_matmul_add_gelu.py
 │   ├── test_matmul_add_multiply.py
 │   ├── test_matmul_add_divide_multiply.py
-│   └── test_matmul_add_divide_multiply_add.py
+│   ├── test_matmul_add_divide_multiply_add.py
+│   ├── test_conv2d_add_relu.py
+│   ├── test_conv2d_add_bias_residual_relu.py
+│   └── test_conv2d_leaky_relu.py
 └── logs/                       # run_test.sh 生成的日志（每个用例 + batch_size 一个文件）
 ```
 
 ## 测试用例
+
+### matmul 用例
 
 各用例的融合子图（`x @ w + b` 之后的 epilogue）：
 
@@ -37,6 +44,18 @@ ap_tests/
 | `test_matmul_add_divide_multiply_add` | `(x @ w + b) / e1 * e2 + e3` | 784 | 192 | 768 |
 
 > 注：含除法的用例会对除数 `e1` 做 `abs(e1) + 1.0` 处理，避免 float16 下除数接近 0 导致溢出为 `inf`，进而造成精度比对失败。
+
+### conv2d 用例
+
+卷积采用 NHWC 布局，`stride=1`（`1x1` 卷积 `padding=0`，`3x3` 卷积 `padding=1`，输出空间尺寸均与输入一致）。各用例融合 `conv2d(x, w)` 之后的 epilogue（`B` 为 batch_size，由 `--batch_size` 覆盖）：
+
+| 用例 | 卷积 | 融合计算 | 输入 x (NHWC) | 卷积核 w (OCHW) | 输出 (NHWC) |
+| --- | --- | --- | --- | --- | --- |
+| `test_conv2d_add_relu` | 3x3 | `relu(conv2d(x, w) + b)` | `[B, 56, 56, 64]` | `[128, 64, 3, 3]` | `[B, 56, 56, 128]` |
+| `test_conv2d_add_bias_residual_relu` | 1x1 | `relu(conv2d(x, w) + bias + residual)` | `[B, 56, 56, 64]` | `[256, 64, 1, 1]` | `[B, 56, 56, 256]` |
+| `test_conv2d_leaky_relu` | 3x3 | `leaky_relu(conv2d(x, w), 0.1)` | `[B, 52, 52, 128]` | `[256, 128, 3, 3]` | `[B, 52, 52, 256]` |
+
+> 注：`add_relu` 中的 `b` 为与输出同形状的张量 `[B, 56, 56, 128]`；`add_bias_residual_relu` 中 `bias` 为按通道广播的 `[256]`、`residual` 为与输出同形状的 `[B, 56, 56, 256]`；`leaky_relu` 的 `negative_slope=0.1` 为标量常量，无额外张量输入。
 
 ### 正确性检查
 
@@ -71,6 +90,8 @@ Speedup = EagerTime / APTime
 
 以下为 `logs/cuda/` 目录下日志的汇总（dtype 为 float16，时间为 benchmark 得到的 GPU 耗时，越小越好；`Speedup = EagerTime / APTime`）。各用例的基础 shape（`B` 由 `--batch_size` 覆盖）：
 
+#### matmul 用例
+
 | 用例 | batch_size | 精度 | EagerTime (ms) | APTime (ms) | Speedup |
 | --- | --- | --- | --- | --- | --- |
 | `test_matmul_add_relu` | 1 | PASS | 1.48 | 0.82 | 1.80x |
@@ -92,19 +113,39 @@ Speedup = EagerTime / APTime
 - 全部用例精度比对均通过。
 - AP 融合在所有用例上均较 Eager 有加速；epilogue 计算简单、访存占比高的用例（如 `relu`、`gelu`）加速更明显，而 `multiply`/`divide` 类用例在 batch_size 增大后加速比回落至约 1.05~1.3x。
 
+#### conv2d 用例
+
+| 用例 | batch_size | 精度 | EagerTime (ms) | APTime (ms) | Speedup |
+| --- | --- | --- | --- | --- | --- |
+| `test_conv2d_add_relu` | 1 | PASS | 2.15 | 1.81 | 1.19x |
+| `test_conv2d_add_relu` | 8 | PASS | 4.99 | 4.21 | 1.19x |
+| `test_conv2d_add_relu` | 32 | PASS | 20.64 | 20.08 | 1.03x |
+| `test_conv2d_add_bias_residual_relu` | 1 | PASS | 2.66 | 1.50 | 1.77x |
+| `test_conv2d_add_bias_residual_relu` | 8 | PASS | 7.66 | 5.32 | 1.44x |
+| `test_conv2d_add_bias_residual_relu` | 32 | PASS | 36.86 | 24.79 | 1.49x |
+| `test_conv2d_leaky_relu` | 1 | PASS | 2.76 | 2.50 | 1.10x |
+| `test_conv2d_leaky_relu` | 8 | PASS | 8.28 | 7.35 | 1.13x |
+| `test_conv2d_leaky_relu` | 32 | PASS | 34.78 | 29.36 | 1.18x |
+
+- 全部用例精度比对均通过。
+- `add_bias_residual_relu`（1×1、输出 256 通道）融合的 epilogue（bias + residual + relu）访存收益最大，稳定在 1.44~1.77x。
+- `add_relu`（3×3）在 batch_size 增大后加速比回落（bs32 仅 1.03x）：3×3 卷积本身计算占比高，epilogue 的访存收益相对有限。
+
 ## 运行方式
 
 批量运行（推荐）：
 
 ```bash
-bash run_test.sh
+bash run_test.sh            # 默认运行 matmul 全部用例
+bash run_test.sh matmul     # 运行 matmul 用例
+bash run_test.sh conv2d     # 运行 conv2d 用例
 ```
 
-`run_test.sh` 会遍历 5 个用例与多个 `batch_size`，结果分别写入 `logs/<用例名>_bs<batch_size>.txt`。
+`run_test.sh` 会根据所选类型遍历对应用例与 `batch_size`，结果分别写入 `logs/<用例名>_bs<batch_size>.txt`，并在运行结束后调用 `tools/extract_perf.py` 打印本次各用例的耗时与加速比汇总。
 可在脚本内修改以下变量：
 
-- `TESTS`：要运行的用例列表；
-- `BATCH_SIZES`：要遍历的 batch_size 列表；
+- `TESTS`：各类型下要运行的用例列表；
+- `BATCH_SIZES`：要遍历的 batch_size 列表（matmul 与 conv2d 默认均为 `1 8 32`）；
 - `CUDA_VISIBLE_DEVICES`：使用的 GPU 卡号。
 
 单独运行某个用例：
@@ -121,7 +162,7 @@ python test_matmul_add_relu.py -v               # unittest 原生参数依然可
 `run_test.sh` 中设置：
 
 ```bash
-export CUDA_VISIBLE_DEVICES=1                           # 使用的 GPU
+export CUDA_VISIBLE_DEVICES=0                           # 使用的 GPU
 export AP_CUTLASS_DIR=/work/Paddle/third_party/cutlass  # CUTLASS 源码路径
 export FLAGS_prim_all=True                              # 开启组合算子
 export FLAGS_prim_enable_dynamic=true                   # 动态 shape 下的组合算子
@@ -134,4 +175,4 @@ export FLAGS_use_cinn=1                                 # 启用 CINN
 os.environ["AP_WORKSPACE_DIR"] = "/tmp/paddle_ap_workspace"
 ```
 
-生成的融合 kernel 源码（`matmul_variadic_kernel.cu`）与编译产物可在该目录下查看。
+生成的融合 kernel 源码（matmul 为 `matmul_variadic_kernel.cu`，conv2d 为 `conv2d_variadic_kernel.cu`）与编译产物可在该目录下查看。
