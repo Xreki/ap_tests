@@ -13,7 +13,8 @@ PaddlePaddle AP (Abstract Pass) 算子融合的功能与性能测试集。
 
 ```
 ap_tests/
-├── run_test.sh                 # 批量运行脚本（可选 matmul / conv2d，遍历用例 + batch_size，末尾打印加速比汇总）
+├── run_matmul_test.sh          # matmul 批量运行脚本（遍历用例 + batch_size）
+├── run_conv2d_test.sh          # conv2d 批量运行脚本（遍历用例 + batch_size）
 ├── tools/
 │   └── extract_perf.py         # 从日志提取 EagerTime / APTime / Speedup 并汇总
 ├── tests/
@@ -26,7 +27,7 @@ ap_tests/
 │   ├── test_conv2d_add_relu.py
 │   ├── test_conv2d_add_bias_residual_relu.py
 │   └── test_conv2d_leaky_relu.py
-└── logs/                       # run_test.sh 生成的日志（每个用例 + batch_size 一个文件）
+└── logs/                       # 运行脚本生成的日志（每个用例 + batch_size 一个文件）
 ```
 
 ## 测试用例
@@ -136,15 +137,14 @@ Speedup = EagerTime / APTime
 批量运行（推荐）：
 
 ```bash
-bash run_test.sh            # 默认运行 matmul 全部用例
-bash run_test.sh matmul     # 运行 matmul 用例
-bash run_test.sh conv2d     # 运行 conv2d 用例
+bash run_matmul_test.sh     # 运行 matmul 全部用例
+bash run_conv2d_test.sh     # 运行 conv2d 全部用例
 ```
 
-`run_test.sh` 会根据所选类型遍历对应用例与 `batch_size`，结果分别写入 `logs/<用例名>_bs<batch_size>.txt`，并在运行结束后调用 `tools/extract_perf.py` 打印本次各用例的耗时与加速比汇总。
+运行脚本会遍历对应类型的用例与 `batch_size`，结果分别写入 `logs/<用例名>_bs<batch_size>.txt`。
 可在脚本内修改以下变量：
 
-- `TESTS`：各类型下要运行的用例列表；
+- `TESTS`：该类型下要运行的用例列表；
 - `BATCH_SIZES`：要遍历的 batch_size 列表（matmul 与 conv2d 默认均为 `1 8 32`）；
 - `CUDA_VISIBLE_DEVICES`：使用的 GPU 卡号。
 
@@ -159,7 +159,7 @@ python test_matmul_add_relu.py -v               # unittest 原生参数依然可
 
 ## 关键环境变量
 
-`run_test.sh` 中设置：
+`run_matmul_test.sh` / `run_conv2d_test.sh` 中设置：
 
 ```bash
 export CUDA_VISIBLE_DEVICES=0                           # 使用的 GPU

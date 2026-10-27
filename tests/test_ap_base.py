@@ -208,13 +208,21 @@ class APTestBase(unittest.TestCase):
         self.assertTrue(
             'pd_op.ap_variadic' in generated_pir_program, "No pd_op.ap_variadic is found in compiled program. AP fusion failed!"
         )
+        logger.info("[%s] Successfully matched ap_variadic operator in compiled program.", type(self).__name__)
         return fused_func
 
     def check_accuracy(self, func, fused_func, tensor_args):
+        atol, rtol = 1e-2, 1e-2
         dy_outs = func(*tensor_args)
         ap_outs = fused_func(*tensor_args)
         for dy_out, ap_out in zip(dy_outs, ap_outs):
-            np.testing.assert_allclose(dy_out, ap_out, atol=1e-2, rtol=1e-2)
+            np.testing.assert_allclose(dy_out, ap_out, atol=atol, rtol=rtol)
+        logger.info(
+            "[%s] Accuracy test passed (atol=%s, rtol=%s).",
+            type(self).__name__,
+            atol,
+            rtol,
+        )
 
     def run_subgraph_test(self, func, tensor_args):
         """Compile `func`, check it against eager, then benchmark both."""

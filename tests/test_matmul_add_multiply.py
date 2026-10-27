@@ -69,7 +69,7 @@ class TestMatmulAddMultiply(test_ap_base.APTestBase):
         ap_time = test_ap_base.bench_device_time(fused_foo, tensor_args)
 
         speedup = eager_time / ap_time if eager_time and ap_time else None
-        logger.info("EagerTime: %.4f ms, APTime: %.4f ms, Speedup: %.2fx", eager_time, ap_time, speedup)
+        logger.info("[%s] EagerTime: %.4f ms, APTime: %.4f ms, Speedup: %.2fx", type(self).__name__, eager_time, ap_time, speedup)
 
 
 if __name__ == "__main__":
