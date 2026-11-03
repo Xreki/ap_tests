@@ -24,9 +24,11 @@ echo " Batch sizes: ${BATCH_SIZES[*]}"
 echo " Log dir    : ${LOG_DIR}"
 echo "========================================================================"
 suite_start=$(date +%s)
+LOG_FILES=()
 for test in "${TESTS[@]}"; do
     for bs in "${BATCH_SIZES[@]}"; do
         log_file="${LOG_DIR}/${test%.py}_bs${bs}.txt"
+        LOG_FILES+=("${log_file}")
         case_start=$(date +%s)
         python tests/${test} --batch_size ${bs} > ${log_file} 2>&1
         status=$?
@@ -40,3 +42,10 @@ echo "========================================================================"
 echo " End time      : $(date '+%Y-%m-%d %H:%M:%S')"
 echo " Total elapsed : $((suite_end - suite_start))s"
 echo "========================================================================"
+
+# 汇总本次运行的性能数据
+if [ ${#LOG_FILES[@]} -gt 0 ]; then
+    echo " Log analysis"
+    echo "========================================================================"
+    python tools/extract_perf.py "${LOG_DIR}" --files "${LOG_FILES[@]}"
+fi

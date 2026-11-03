@@ -1,0 +1,455 @@
+W1103 22:11:46.040874 132112 gpu_resources.cc:116] Please NOTE: device: 0, GPU Compute Capability: 8.0, Driver API Version: 12.6, Runtime API Version: 12.8
+[2026-11-03 22:11:46,051] [    INFO] test_ap_base.py:403 - Start test: __main__.TestAttentionAddGelu.test_subgraph
+W1103 22:11:46.427878 132112 eager_utils.cc:3617] Paddle static graph(PIR) not support input out tensor for now!!!!!
+I1103 22:11:46.503610 132112 add_cinn_pass.cc:336] Compiling subgraph with CINN backend ...
+I1103 22:11:46.509366 132112 add_cinn_pass.cc:293] Enable AP Generic DRR Pass
+E1103 22:11:46.509384 132112 add_cinn_pass.cc:238] before ConvertPdFacadeToApFacadePass:
+{
+    (%0) = "pd_op.data" () {dtype:float16,name:"q",place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[false]} : () -> tensor<1x2048x32x128xf16>
+    (%1) = "pd_op.data" () {dtype:float16,name:"k",place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[false]} : () -> tensor<1x2048x32x128xf16>
+    (%2) = "pd_op.data" () {dtype:float16,name:"v",place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[false]} : () -> tensor<1x2048x32x128xf16>
+    (%3) = "pd_op.data" () {dtype:float16,name:"bias",place:Place(undefined:0),shape:[128],stop_gradient:[false]} : () -> tensor<128xf16>
+    (%4) = "pd_op.full" () {dtype:int64,place:Place(cpu),shape:[1],stop_gradient:[true],value:-1} : () -> tensor<1xi64>
+    (%5) = "pd_op.full" () {dtype:int64,place:Place(cpu),shape:[1],stop_gradient:[true],value:-1} : () -> tensor<1xi64>
+    (%6, %7, %8) = "pd_op.memory_efficient_attention" (%0, %1, %2, <<NULL VALUE>>, <<NULL VALUE>>, <<NULL VALUE>>, <<NULL VALUE>>, <<NULL VALUE>>, %4, %5) {causal:false,dropout_p:0,is_test:true,scale:-1,stop_gradient:[false,false,false]} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>, <<NULL TYPE>>, <<NULL TYPE>>, <<NULL TYPE>>, <<NULL TYPE>>, <<NULL TYPE>>, tensor<1xi64>, tensor<1xi64>) -> tensor<1x2048x32x128xf16>, tensor<32x1xf32>, tensor<2xi64>
+    (%9) = "cinn_op.fusion" () -> tensor<1x2048x32x128xf16> {
+        (%10) = "cinn_op.broadcast" (%3) {broadcast_axes:[3],out_shape:[1,2048,32,128],stop_gradient:[false]} : (tensor<128xf16>) -> tensor<1x2048x32x128xf16>
+        (%11) = "pd_op.add" (%6, %10) {stop_gradient:[false]} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+        (%12) = "pd_op.full" () {dtype:float16,place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[true],value:0.707107} : () -> tensor<1x2048x32x128xf16>
+        (%13) = "pd_op.multiply" (%11, %12) {comp_op_name:"pd_op.gelu",stop_gradient:[false]} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+        (%14) = "pd_op.erf" (%13) {comp_op_name:"pd_op.gelu",stop_gradient:[false]} : (tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+        (%15) = "pd_op.full" () {dtype:float16,place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[true],value:1} : () -> tensor<1x2048x32x128xf16>
+        (%16) = "pd_op.add" (%15, %14) {comp_op_name:"pd_op.gelu",stop_gradient:[false]} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+        (%17) = "pd_op.full" () {dtype:float16,place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[true],value:0.5} : () -> tensor<1x2048x32x128xf16>
+        (%18) = "pd_op.multiply" (%11, %17) {comp_op_name:"pd_op.gelu",stop_gradient:[false]} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+        (%19) = "pd_op.multiply" (%18, %16) {comp_op_name:"pd_op.gelu",stop_gradient:[false]} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+        () = "cf.yield" (%19) {} : (tensor<1x2048x32x128xf16>) -> 
+    }
+    () = "builtin.shadow_output" (%9) {output_name:"output_0"} : (tensor<1x2048x32x128xf16>) -> 
+}
+E1103 22:11:46.509502 132112 add_cinn_pass.cc:243] after ConvertPdFacadeToApFacadePass:
+{
+    (%0) = "pd_op.data" () {dtype:float16,name:"q",place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[false]} : () -> tensor<1x2048x32x128xf16>
+    (%1) = "pd_op.data" () {dtype:float16,name:"k",place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[false]} : () -> tensor<1x2048x32x128xf16>
+    (%2) = "pd_op.data" () {dtype:float16,name:"v",place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[false]} : () -> tensor<1x2048x32x128xf16>
+    (%3) = "pd_op.data" () {dtype:float16,name:"bias",place:Place(undefined:0),shape:[128],stop_gradient:[false]} : () -> tensor<128xf16>
+    (%4) = "pd_op.full" () {dtype:int64,place:Place(cpu),shape:[1],stop_gradient:[true],value:-1} : () -> tensor<1xi64>
+    (%5) = "pd_op.full" () {dtype:int64,place:Place(cpu),shape:[1],stop_gradient:[true],value:-1} : () -> tensor<1xi64>
+    (%6, %7, %8) = "pd_op.memory_efficient_attention" (%0, %1, %2, <<NULL VALUE>>, <<NULL VALUE>>, <<NULL VALUE>>, <<NULL VALUE>>, <<NULL VALUE>>, %4, %5) {causal:false,dropout_p:0,is_test:true,scale:-1,stop_gradient:[false,false,false]} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>, <<NULL TYPE>>, <<NULL TYPE>>, <<NULL TYPE>>, <<NULL TYPE>>, <<NULL TYPE>>, tensor<1xi64>, tensor<1xi64>) -> tensor<1x2048x32x128xf16>, tensor<32x1xf32>, tensor<2xi64>
+    (%9) = "cinn_op.fusion" () -> tensor<1x2048x32x128xf16> {
+        (%10) = "cinn_op.broadcast" (%3) {broadcast_axes:[3],out_shape:[1,2048,32,128],stop_gradient:[false]} : (tensor<128xf16>) -> tensor<1x2048x32x128xf16>
+        (%11) = "pd_op.add" (%6, %10) {stop_gradient:[false]} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+        (%12) = "pd_op.full" () {dtype:float16,place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[true],value:0.707107} : () -> tensor<1x2048x32x128xf16>
+        (%13) = "pd_op.multiply" (%11, %12) {comp_op_name:"pd_op.gelu",stop_gradient:[false]} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+        (%14) = "pd_op.erf" (%13) {comp_op_name:"pd_op.gelu",stop_gradient:[false]} : (tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+        (%15) = "pd_op.full" () {dtype:float16,place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[true],value:1} : () -> tensor<1x2048x32x128xf16>
+        (%16) = "pd_op.add" (%15, %14) {comp_op_name:"pd_op.gelu",stop_gradient:[false]} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+        (%17) = "pd_op.full" () {dtype:float16,place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[true],value:0.5} : () -> tensor<1x2048x32x128xf16>
+        (%18) = "pd_op.multiply" (%11, %17) {comp_op_name:"pd_op.gelu",stop_gradient:[false]} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+        (%19) = "pd_op.multiply" (%18, %16) {comp_op_name:"pd_op.gelu",stop_gradient:[false]} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+        () = "cf.yield" (%19) {} : (tensor<1x2048x32x128xf16>) -> 
+    }
+    () = "builtin.shadow_output" (%9) {output_name:"output_0"} : (tensor<1x2048x32x128xf16>) -> 
+}
+E1103 22:11:46.715055 132112 add_cinn_pass.cc:263] before ApGenericAbstractDrrPass:
+{
+    (%0) = "pd_op.data" () {dtype:float16,name:"q",place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[false]} : () -> tensor<1x2048x32x128xf16>
+    (%1) = "pd_op.data" () {dtype:float16,name:"k",place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[false]} : () -> tensor<1x2048x32x128xf16>
+    (%2) = "pd_op.data" () {dtype:float16,name:"v",place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[false]} : () -> tensor<1x2048x32x128xf16>
+    (%3) = "pd_op.data" () {dtype:float16,name:"bias",place:Place(undefined:0),shape:[128],stop_gradient:[false]} : () -> tensor<128xf16>
+    (%4) = "pd_op.full" () {dtype:int64,place:Place(cpu),shape:[1],stop_gradient:[true],value:-1} : () -> tensor<1xi64>
+    (%5) = "pd_op.full" () {dtype:int64,place:Place(cpu),shape:[1],stop_gradient:[true],value:-1} : () -> tensor<1xi64>
+    (%6, %7, %8) = "pd_op.memory_efficient_attention" (%0, %1, %2, <<NULL VALUE>>, <<NULL VALUE>>, <<NULL VALUE>>, <<NULL VALUE>>, <<NULL VALUE>>, %4, %5) {causal:false,dropout_p:0,is_test:true,scale:-1,stop_gradient:[false,false,false]} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>, <<NULL TYPE>>, <<NULL TYPE>>, <<NULL TYPE>>, <<NULL TYPE>>, <<NULL TYPE>>, tensor<1xi64>, tensor<1xi64>) -> tensor<1x2048x32x128xf16>, tensor<32x1xf32>, tensor<2xi64>
+    (%9) = "cinn_op.fusion" () -> tensor<1x2048x32x128xf16> {
+        (%10) = "cinn_op.broadcast" (%3) {broadcast_axes:[3],out_shape:[1,2048,32,128],stop_gradient:[false]} : (tensor<128xf16>) -> tensor<1x2048x32x128xf16>
+        (%11) = "pd_op.add" (%6, %10) {stop_gradient:[false]} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+        (%12) = "pd_op.full" () {dtype:float16,place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[true],value:0.707107} : () -> tensor<1x2048x32x128xf16>
+        (%13) = "pd_op.multiply" (%11, %12) {comp_op_name:"pd_op.gelu",stop_gradient:[false]} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+        (%14) = "pd_op.erf" (%13) {comp_op_name:"pd_op.gelu",stop_gradient:[false]} : (tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+        (%15) = "pd_op.full" () {dtype:float16,place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[true],value:1} : () -> tensor<1x2048x32x128xf16>
+        (%16) = "pd_op.add" (%15, %14) {comp_op_name:"pd_op.gelu",stop_gradient:[false]} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+        (%17) = "pd_op.full" () {dtype:float16,place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[true],value:0.5} : () -> tensor<1x2048x32x128xf16>
+        (%18) = "pd_op.multiply" (%11, %17) {comp_op_name:"pd_op.gelu",stop_gradient:[false]} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+        (%19) = "pd_op.multiply" (%18, %16) {comp_op_name:"pd_op.gelu",stop_gradient:[false]} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+        () = "cf.yield" (%19) {} : (tensor<1x2048x32x128xf16>) -> 
+    }
+    () = "builtin.shadow_output" (%9) {output_name:"output_0"} : (tensor<1x2048x32x128xf16>) -> 
+}
+E1103 22:11:46.777570 132112 builtin_functions.cc:126] Print
+before-umprime:  {
+    (%0) = "pd_op.data" () {dtype:float16,name:"input3",place:Place(undefined:0),shape:[128],stop_gradient:[true]} : () -> tensor<128xf16>
+    (%1) = "pd_op.data" () {dtype:float16,name:"attn_out",place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[true]} : () -> tensor<1x2048x32x128xf16>
+    (%2) = "cinn_op.broadcast" (%0) {broadcast_axes:[3],out_shape:[1,2048,32,128],stop_gradient:[false]} : (tensor<128xf16>) -> tensor<1x2048x32x128xf16>
+    (%3) = "pd_op.add" (%1, %2) {stop_gradient:[false]} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+    (%4) = "pd_op.full" () {dtype:float16,place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[true],value:0.707107} : () -> tensor<1x2048x32x128xf16>
+    (%5) = "pd_op.multiply" (%3, %4) {comp_op_name:"pd_op.gelu",stop_gradient:[false]} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+    (%6) = "pd_op.erf" (%5) {comp_op_name:"pd_op.gelu",stop_gradient:[false]} : (tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+    (%7) = "pd_op.full" () {dtype:float16,place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[true],value:1} : () -> tensor<1x2048x32x128xf16>
+    (%8) = "pd_op.add" (%7, %6) {comp_op_name:"pd_op.gelu",stop_gradient:[false]} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+    (%9) = "pd_op.full" () {dtype:float16,place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[true],value:0.5} : () -> tensor<1x2048x32x128xf16>
+    (%10) = "pd_op.multiply" (%3, %9) {comp_op_name:"pd_op.gelu",stop_gradient:[false]} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+    (%11) = "pd_op.multiply" (%10, %8) {comp_op_name:"pd_op.gelu",stop_gradient:[false]} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+    () = "cf.yield" (%11) {} : (tensor<1x2048x32x128xf16>) -> 
+}
+E1103 22:11:46.779177 132112 builtin_functions.cc:126] Print
+before-access_topo_pass {
+    (%0) = "pd_op.data" () {dtype:float16,name:"input3",place:Place(undefined:0),shape:[128],stop_gradient:[true]} : () -> tensor<128xf16>
+    (%1) = "pd_op.data" () {dtype:float16,name:"attn_out",place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[true]} : () -> tensor<1x2048x32x128xf16>
+    (%2) = "cinn_op.broadcast" (%0) {broadcast_axes:[3],out_shape:[1,2048,32,128],stop_gradient:[false]} : (tensor<128xf16>) -> tensor<1x2048x32x128xf16>
+    (%3) = "pd_op.add" (%1, %2) {stop_gradient:[false]} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+    (%4) = "pd_op.full" () {dtype:float16,place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[true],value:0.707107} : () -> tensor<1x2048x32x128xf16>
+    (%5) = "pd_op.multiply" (%3, %4) {comp_op_name:"pd_op.gelu",stop_gradient:[false]} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+    (%6) = "pd_op.erf" (%5) {comp_op_name:"pd_op.gelu",stop_gradient:[false]} : (tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+    (%7) = "pd_op.full" () {dtype:float16,place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[true],value:1} : () -> tensor<1x2048x32x128xf16>
+    (%8) = "pd_op.add" (%7, %6) {comp_op_name:"pd_op.gelu",stop_gradient:[false]} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+    (%9) = "pd_op.full" () {dtype:float16,place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[true],value:0.5} : () -> tensor<1x2048x32x128xf16>
+    (%10) = "pd_op.multiply" (%3, %9) {comp_op_name:"pd_op.gelu",stop_gradient:[false]} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+    (%11) = "pd_op.multiply" (%10, %8) {comp_op_name:"pd_op.gelu",stop_gradient:[false]} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+    () = "cf.yield" (%11) {} : (tensor<1x2048x32x128xf16>) -> 
+}
+E1103 22:11:46.779585 132112 builtin_functions.cc:126] Print
+inputs_name_list:  input2, input3
+E1103 22:11:46.781764 132112 builtin_functions.cc:126] Print
+after-init-access_topo_pass {
+    (%0) = "pd_op.data" () {dtype:float16,name:"input3",place:Place(undefined:0),shape:[128],stop_gradient:[true]} : () -> tensor<128xf16>
+    (%1) = "pd_op.data" () {dtype:float16,name:"attn_out",place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[true]} : () -> tensor<1x2048x32x128xf16>
+    (%2) = "ap_op.down_spider" (%1) {} : (tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+    (%3) = "cinn_op.broadcast" (%0) {broadcast_axes:[3],out_shape:[1,2048,32,128],stop_gradient:[false]} : (tensor<128xf16>) -> tensor<1x2048x32x128xf16>
+    (%4) = "pd_op.add" (%2, %3) {stop_gradient:[false]} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+    (%5) = "pd_op.full" () {dtype:float16,place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[true],value:0.707107} : () -> tensor<1x2048x32x128xf16>
+    (%6) = "pd_op.multiply" (%4, %5) {comp_op_name:"pd_op.gelu",stop_gradient:[false]} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+    (%7) = "pd_op.erf" (%6) {comp_op_name:"pd_op.gelu",stop_gradient:[false]} : (tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+    (%8) = "pd_op.full" () {dtype:float16,place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[true],value:1} : () -> tensor<1x2048x32x128xf16>
+    (%9) = "pd_op.add" (%8, %7) {comp_op_name:"pd_op.gelu",stop_gradient:[false]} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+    (%10) = "pd_op.full" () {dtype:float16,place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[true],value:0.5} : () -> tensor<1x2048x32x128xf16>
+    (%11) = "pd_op.multiply" (%4, %10) {comp_op_name:"pd_op.gelu",stop_gradient:[false]} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+    (%12) = "pd_op.multiply" (%11, %9) {comp_op_name:"pd_op.gelu",stop_gradient:[false]} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+    (%13) = "pd_op.data" () {dtype:float16,name:"output0",place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[true]} : () -> tensor<1x2048x32x128xf16>
+    () = "ap_op.up_spider" (%12, %13) {} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>) -> 
+}
+E1103 22:11:46.793756 132112 builtin_functions.cc:126] Print
+after-apply-access_topo_pass {
+    (%0) = "pd_op.data" () {dtype:float16,name:"input3",place:Place(undefined:0),shape:[128],stop_gradient:[true]} : () -> tensor<128xf16>
+    (%1) = "pd_op.data" () {dtype:float16,name:"attn_out",place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[true]} : () -> tensor<1x2048x32x128xf16>
+    (%2) = "pd_op.full_int_array" () {dtype:int64,place:Place(cpu),stop_gradient:[true],value:[0,1,2]} : () -> tensor<3xi64>
+    (%3) = "pd_op.sum" (%1, %2) {dtype:Undefined,keepdim:false,stop_gradient:[true]} : (tensor<1x2048x32x128xf16>, tensor<3xi64>) -> tensor<128xf16>
+    () = "ap_op.up_spider" (%3, %0) {} : (tensor<128xf16>, tensor<128xf16>) -> 
+    (%4) = "pd_op.data" () {dtype:float16,name:"output0",place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[true]} : () -> tensor<1x2048x32x128xf16>
+    () = "ap_op.up_spider" (%1, %4) {} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>) -> 
+}
+E1103 22:11:46.796501 132112 builtin_functions.cc:126] Print
+after-remove-input-output-access_topo_pass {
+}
+E1103 22:11:46.797717 132112 builtin_functions.cc:126] Print
+before-umprime:  {
+    (%0) = "pd_op.data" () {dtype:float16,name:"input3",place:Place(undefined:0),shape:[128],stop_gradient:[true]} : () -> tensor<128xf16>
+    (%1) = "pd_op.data" () {dtype:float16,name:"attn_out",place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[true]} : () -> tensor<1x2048x32x128xf16>
+    (%2) = "cinn_op.broadcast" (%0) {broadcast_axes:[3],out_shape:[1,2048,32,128],stop_gradient:[false]} : (tensor<128xf16>) -> tensor<1x2048x32x128xf16>
+    (%3) = "pd_op.add" (%1, %2) {stop_gradient:[false]} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+    (%4) = "pd_op.full" () {dtype:float16,place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[true],value:0.707107} : () -> tensor<1x2048x32x128xf16>
+    (%5) = "pd_op.multiply" (%3, %4) {comp_op_name:"pd_op.gelu",stop_gradient:[false]} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+    (%6) = "pd_op.erf" (%5) {comp_op_name:"pd_op.gelu",stop_gradient:[false]} : (tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+    (%7) = "pd_op.full" () {dtype:float16,place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[true],value:1} : () -> tensor<1x2048x32x128xf16>
+    (%8) = "pd_op.add" (%7, %6) {comp_op_name:"pd_op.gelu",stop_gradient:[false]} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+    (%9) = "pd_op.full" () {dtype:float16,place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[true],value:0.5} : () -> tensor<1x2048x32x128xf16>
+    (%10) = "pd_op.multiply" (%3, %9) {comp_op_name:"pd_op.gelu",stop_gradient:[false]} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+    (%11) = "pd_op.multiply" (%10, %8) {comp_op_name:"pd_op.gelu",stop_gradient:[false]} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+    () = "cf.yield" (%11) {} : (tensor<1x2048x32x128xf16>) -> 
+}
+E1103 22:11:46.812851 132112 builtin_functions.cc:126] Print
+full_index_program:  {
+    (%0) = "pd_op.data" () {dtype:float16,name:"input3",place:Place(undefined:0),shape:[128],stop_gradient:[true]} : () -> tensor<128xf16>
+    (%1) = "ap_op.load_from_global" (%0) {index_func_unique_id:"input3"} : (tensor<128xf16>) -> tensor<128xf16>
+    (%2) = "pd_op.data" () {dtype:float16,name:"attn_out",place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[true]} : () -> tensor<1x2048x32x128xf16>
+    (%3) = "ap_op.down_spider" (%2) {} : (tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+    (%4) = "pd_op.full_int_array" () {dtype:int64,place:Place(cpu),stop_gradient:[true],value:[0,1,2]} : () -> tensor<3xi64>
+    (%5) = "pd_op.sum" (%2, %4) {dtype:Undefined,keepdim:false,stop_gradient:[true]} : (tensor<1x2048x32x128xf16>, tensor<3xi64>) -> tensor<128xf16>
+    () = "ap_op.up_spider" (%5, %1) {} : (tensor<128xf16>, tensor<128xf16>) -> 
+    (%6) = "pd_op.data" () {dtype:float16,name:"output0",place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[true]} : () -> tensor<1x2048x32x128xf16>
+    () = "ap_op.store_to_global" (%6, %3) {index_func_unique_id:"output0"} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>) -> 
+}
+E1103 22:11:46.815338 132112 builtin_functions.cc:126] Print
+index_func_unique_id2index_program:
+ OrderedDict([[input3, {
+    (%0) = "pd_op.data" () {dtype:float16,name:"attn_out",place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[true]} : () -> tensor<1x2048x32x128xf16>
+    (%1) = "pd_op.full_int_array" () {dtype:int64,place:Place(cpu),stop_gradient:[true],value:[0,1,2]} : () -> tensor<3xi64>
+    (%2) = "pd_op.sum" (%0, %1) {dtype:Undefined,keepdim:false,stop_gradient:[true]} : (tensor<1x2048x32x128xf16>, tensor<3xi64>) -> tensor<128xf16>
+    () = "cf.yield" (%2) {} : (tensor<128xf16>) -> 
+}
+]])
+E1103 22:11:46.817656 132112 builtin_functions.cc:126] Print
+mut_program: {
+    (%0) = "pd_op.data" () {dtype:float16,name:"input3",place:Place(undefined:0),shape:[128],stop_gradient:[true]} : () -> tensor<128xf16>
+    (%1) = "ap_op.load_from_global" (%0) {index_func_unique_id:"input3"} : (tensor<128xf16>) -> tensor<128xf16>
+    (%2) = "ap_op.load_from_register" () {name:"attn_out",register_var_name:"x",symbolic_shape_or_data:,type:tensor<1x2048x32x128xf16>} : () -> tensor<1x2048x32x128xf16>
+    (%3) = "cinn_op.broadcast" (%1) {broadcast_axes:[3],out_shape:[1,2048,32,128],stop_gradient:[false]} : (tensor<128xf16>) -> tensor<1x2048x32x128xf16>
+    (%4) = "pd_op.add" (%2, %3) {stop_gradient:[false]} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+    (%5) = "pd_op.full" () {dtype:float16,place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[true],value:0.707107} : () -> tensor<1x2048x32x128xf16>
+    (%6) = "pd_op.multiply" (%4, %5) {comp_op_name:"pd_op.gelu",stop_gradient:[false]} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+    (%7) = "pd_op.erf" (%6) {comp_op_name:"pd_op.gelu",stop_gradient:[false]} : (tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+    (%8) = "pd_op.full" () {dtype:float16,place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[true],value:1} : () -> tensor<1x2048x32x128xf16>
+    (%9) = "pd_op.add" (%8, %7) {comp_op_name:"pd_op.gelu",stop_gradient:[false]} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+    (%10) = "pd_op.full" () {dtype:float16,place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[true],value:0.5} : () -> tensor<1x2048x32x128xf16>
+    (%11) = "pd_op.multiply" (%4, %10) {comp_op_name:"pd_op.gelu",stop_gradient:[false]} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+    (%12) = "pd_op.multiply" (%11, %9) {comp_op_name:"pd_op.gelu",stop_gradient:[false]} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>) -> tensor<1x2048x32x128xf16>
+    () = "ap_op.store_to_register" (%12) {name:"output0",register_var_name:"out"} : (tensor<1x2048x32x128xf16>) -> 
+}
+E1103 22:11:46.823321 132112 builtin_functions.cc:126] Print
+trivial_code_str:  float op1_out0 = static_cast<float>(args.in_ptr_0[(coord.column)]);
+    float op4_out0 = static_cast<float>(x + op1_out0);
+    float op5_out0 = static_cast<float>(0.707107);
+    float op6_out0 = static_cast<float>(op4_out0 * op5_out0);
+    float op7_out0 = static_cast<float>(erf(op6_out0));
+    float op8_out0 = static_cast<float>(1.000000);
+    float op9_out0 = static_cast<float>(op8_out0 + op7_out0);
+    float op10_out0 = static_cast<float>(0.500000);
+    float op11_out0 = static_cast<float>(op4_out0 * op10_out0);
+    float op12_out0 = static_cast<float>(op11_out0 * op9_out0);
+    out = op12_out0;
+E1103 22:11:46.826184 132112 add_cinn_pass.cc:266] after ApGenericAbstractDrrPass:
+{
+    (%0) = "pd_op.data" () {dtype:float16,name:"q",place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[false]} : () -> tensor<1x2048x32x128xf16>
+    (%1) = "pd_op.data" () {dtype:float16,name:"k",place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[false]} : () -> tensor<1x2048x32x128xf16>
+    (%2) = "pd_op.data" () {dtype:float16,name:"v",place:Place(undefined:0),shape:[1,2048,32,128],stop_gradient:[false]} : () -> tensor<1x2048x32x128xf16>
+    (%3) = "pd_op.data" () {dtype:float16,name:"bias",place:Place(undefined:0),shape:[128],stop_gradient:[false]} : () -> tensor<128xf16>
+    (%4) = "builtin.combine" (%0, %1, %2, %3) {stop_gradient:[false]} : (tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>, tensor<1x2048x32x128xf16>, tensor<128xf16>) -> vec[tensor<1x2048x32x128xf16>,tensor<1x2048x32x128xf16>,tensor<1x2048x32x128xf16>,tensor<128xf16>]
+    (%5) = "pd_op.ap_variadic" (%4) {code_module_lambda:"[\"lambda\",[],[\"__builtin_let__\",[[\"___128\",[\"__builtin_getattr__\",\"DataType\",{\"str\":\"void\"}]],[\"___129\",[\"__builtin_getattr__\",\"PointerType\",{\"str\":\"void_ptr\"}]],[\"___130\",[\"__builtin_getattr__\",\"PointerType\",{\"str\":\"const_float16_ptr\"}]],[\"___131\",[\"__builtin_getattr__\",\"PointerType\",{\"str\":\"const_float16_ptr\"}]],[\"___132\",[\"__builtin_getattr__\",\"PointerType\",{\"str\":\"const_float16_ptr\"}]],[\"___133\",[\"__builtin_getattr__\",\"PointerType\",{\"str\":\"float16_ptr\"}]],[\"___134\",[\"__builtin_getattr__\",\"DataType\",{\"str\":\"int64_t\"}]],[\"___135\",[\"__builtin_getattr__\",\"DataType\",{\"str\":\"int64_t\"}]],[\"___136\",[\"__builtin_getattr__\",\"DataType\",{\"str\":\"int64_t\"}]],[\"___137\",[\"__builtin_getattr__\",\"DataType\",{\"str\":\"int64_t\"}]],[\"___138\",[\"__builtin_getattr__\",\"PointerType\",{\"str\":\"const_float16_ptr\"}]],[\"___139\",[\"__builtin_list__\",\"___129\",\"___130\",\"___131\",\"___132\",\"___133\",\"___134\",\"___135\",\"___136\",\"___137\",\"___138\"]],[\"___140\",[\"FuncDeclare\",\"___128\",{\"str\":\"AttentionVariadicKernel\"},\"___139\"]],[\"___141\",[\"__builtin_list__\"]],[\"___142\",[\"__builtin_list__\"]],[\"___143\",[\"__builtin_PackedArgs__\",\"___141\",\"___142\"]],[\"___144\",[\"__builtin_getattr__\",\"Project\",{\"str\":\"FileContent\"}]],[\"___145\",[\"___144\",{\"str\":\"nvcc -std=c++20 -O3 -Xcompiler=-fPIC -arch=sm_80 --expt-relaxed-constexpr -I ${AP_CUTLASS_DIR}/include -I ${AP_CUTLASS_DIR}/tools/util/include -I /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/matmul -DCUTLASS_ENABLE_TENSOR_CORE_MMA=1 -DCUTLASS_DEBUG_TRACE_LEVEL=0 -DAP_ENABLE_AUTOTUNE=1 -DAP_ENABLE_DEBUG=0 --shared attention_variadic_kernel.cu -o libattention_variadic_kernel.so\"}]],[\"___146\",[\"__builtin_getattr__\",\"Project\",{\"str\":\"FileContent\"}]],[\"___147\",[\"___146\",{\"str\":\"\n// auto generated codes\n#include \\"kernels.h\\"\n#include <vector>\n\nnamespace ap {\n\ntemplate <typename T>\nstruct VariadicEpilogueFunctor {\n  struct Arguments {\n    // (b, h) are threadblock-uniform for the FMHA epilogue: every output\n    // element a threadblock writes shares the same batch / head. The backend\n    // output op (MemoryEfficientAttentionNormalizeWithVariadic) fills these per\n    // threadblock before invoking the functor, so they are not set host-side.\n    int b;\n    int h;\n    const half* in_ptr_0;\n  };\n\n  // Note: need to support vectorized operation\n  __forceinline__ __host__ __device__\n  T operator()(T x, const Arguments& args, const MatrixCoord& coord) const {\n    T out;\n    // Anchor coordinate of the BMHK attention output [B, M, H, Dv]:\n    //   b = args.b, h = args.h  (threadblock constants)\n    //   coord.row = m (query index), coord.column = dv (value head dim)\n    const int b = args.b;\n    const int h = args.h;\n    float op1_out0 = static_cast<float>(args.in_ptr_0[(coord.column)]);\n    float op4_out0 = static_cast<float>(x + op1_out0);\n    float op5_out0 = static_cast<float>(0.707107);\n    float op6_out0 = static_cast<float>(op4_out0 * op5_out0);\n    float op7_out0 = static_cast<float>(erf(op6_out0));\n    float op8_out0 = static_cast<float>(1.000000);\n    float op9_out0 = static_cast<float>(op8_out0 + op7_out0);\n    float op10_out0 = static_cast<float>(0.500000);\n    float op11_out0 = static_cast<float>(op4_out0 * op10_out0);\n    float op12_out0 = static_cast<float>(op11_out0 * op9_out0);\n    out = op12_out0;\n    return out;\n  }\n};\n\ntemplate <int TuningConfigId>\nstatic void RunAttentionWithVariadicKernel(const AttentionEpilogueParams &params, const half* query, const half* key, const half* value, half* output, int64_t query_dim0, int64_t query_dim1, int64_t query_dim2, int64_t query_dim3, const half* in_ptr_0) {\n  using ElementT = half;\n  using ElementComputeT = float;\n\n  typename VariadicEpilogueFunctor<ElementComputeT>::Arguments epilogue_args;\n  // NOTE: epilogue_args.b / .h are populated per threadblock inside the FMHA\n  // output op, not here.\n  epilogue_args.in_ptr_0 = in_ptr_0;\n\n  AttentionVariadicFusion<ElementT, ElementComputeT, VariadicEpilogueFunctor,\n                          /*HeadDim=*/128, /*IsCausal=*/false,\n                          TuningConfigId>(params, epilogue_args);\n}\n\n} // namespace ap\n\nextern \\"C\\" {\n\nvoid AttentionVariadicKernel(void* stream_ptr, const half* query, const half* key, const half* value, half* output, int64_t query_dim0, int64_t query_dim1, int64_t query_dim2, int64_t query_dim3, const half* in_ptr_0) {\n  // Query / key / value are all BMHK: [B, M/N, H, Dh/Dv].\n  std::vector<int64_t> query_shape;\n  query_shape.resize(4);\n  query_shape[0] = query_dim0;\n  query_shape[1] = query_dim1;\n  query_shape[2] = query_dim2;\n  query_shape[3] = query_dim3;\n\n  std::vector<int64_t> key_shape;\n  key_shape.resize(4);\n  key_shape[0] = query_dim0;\n  key_shape[1] = query_dim1;\n  key_shape[2] = query_dim2;\n  key_shape[3] = query_dim3;\n\n  std::vector<int64_t> value_shape;\n  value_shape.resize(4);\n  value_shape[0] = query_dim0;\n  value_shape[1] = query_dim1;\n  value_shape[2] = query_dim2;\n  value_shape[3] = query_dim3;\n\n  ap::AttentionEpilogueParams params(stream_ptr,\n                                     query,\n                                     key,\n                                     value,\n                                     output,\n                                     query_shape,\n                                     key_shape,\n                                     value_shape,\n                                     /*scale=*/-1.000000f,\n                                     /*causal=*/false);\n\n#if AP_ENABLE_AUTOTUNE\n  AP_AUTOTUNE_half(ap::RunAttentionWithVariadicKernel, stream_ptr, params, query, key, value, output, query_dim0, query_dim1, query_dim2, query_dim3, in_ptr_0);\n#else\n  ap::RunAttentionWithVariadicKernel<ap::DefaultConfig::kConfigId>(params, query, key, value, output, query_dim0, query_dim1, query_dim2, query_dim3, in_ptr_0);\n#endif\n}\n}\n  \"}]],[\"___148\",[\"__builtin_getattr__\",\"Project\",{\"str\":\"Directory\"}]],[\"___149\",[\"__builtin_list__\",{\"str\":\"make.sh\"},\"___145\"]],[\"___150\",[\"__builtin_list__\",{\"str\":\"attention_variadic_kernel.cu\"},\"___147\"]],[\"___151\",[\"___148\",\"___149\",\"___150\"]],[\"___152\",[\"BuiltinSerializableAttrMap\",\"___143\"]],[\"___153\",[\"__builtin_list__\",{\"str\":\"compile_cmd\"},{\"str\":\"sh make.sh\"}]],[\"___154\",[\"__builtin_list__\",{\"str\":\"nested_files\"},\"___151\"]],[\"___155\",[\"__builtin_list__\",{\"str\":\"others\"},\"___152\"]],[\"___156\",[\"__builtin_list__\",{\"str\":\"so_relative_path\"},{\"str\":\"libattention_variadic_kernel.so\"}]],[\"___157\",[\"__builtin_list__\"]],[\"___158\",[\"__builtin_list__\",\"___153\",\"___154\",\"___155\",\"___156\"]],[\"___159\",[\"__builtin_PackedArgs__\",\"___157\",\"___158\"]],[\"___160\",[\"__builtin_list__\",\"___140\"]],[\"___161\",[\"Project\",\"___159\"]]],[\"CodeModule\",\"___160\",\"___161\"]]]",infer_meta_lambda:"[\"lambda\",[\"inputs\",\"outputs\"],[\"__builtin_let__\",[[\"___168\",[\"__builtin_getitem__\",\"outputs\",0]],[\"___169\",[\"__builtin_list__\",1,2048,32,128]],[\"___170\",[\"__builtin_setattr__\",\"___168\",{\"str\":\"dims\"}]],[\"___171\",[\"___170\",{\"str\":\"dims\"},\"___169\"]],[\"___172\",[\"__builtin_getattr__\",\"DataType\",{\"str\":\"float16\"}]],[\"___173\",[\"__builtin_setattr__\",\"___168\",{\"str\":\"dtype\"}]],[\"___174\",[\"___173\",{\"str\":\"dtype\"},\"___172\"]]],null]]",infer_symbolic_lambda:"[\"lambda\",[\"infer_ctx\",\"inputs\",\"attrs\"],[\"__builtin_let__\",[[\"___162\",[\"import\",{\"str\":\"pir\"}]],[\"pir\",[\"__builtin_identity__\",\"___162\"]],[\"___163\",[\"__builtin_getitem__\",\"outputs\",0]],[\"___164\",[\"__builtin_list__\",1,2048,32,128]],[\"___165\",[\"__builtin_getattr__\",\"pir\",{\"str\":\"s_tensor_shape_or_data\"}]],[\"___166\",[\"___165\",\"___164\"]],[\"___167\",[\"__builtin_list__\",\"___166\"]]],\"___167\"]]",kernel_dispatch_const_data_lambda:"[\"lambda\",[],[\"__builtin_let__\",[[\"___175\",[\"__builtin_list__\",{\"str\":\"output0\"},0]],[\"___176\",[\"__builtin_list__\"]],[\"___177\",[\"__builtin_list__\",\"___175\"]],[\"___178\",[\"__builtin_PackedArgs__\",\"___176\",\"___177\"]],[\"___179\",[\"__builtin_list__\",{\"str\":\"input0\"},0]],[\"___180\",[\"__builtin_list__\",{\"str\":\"input1\"},1]],[\"___181\",[\"__builtin_list__\",{\"str\":\"input2\"},2]],[\"___182\",[\"__builtin_list__\",{\"str\":\"input3\"},3]],[\"___183\",[\"__builtin_list__\"]],[\"___184\",[\"__builtin_list__\",\"___179\",\"___180\",\"___181\",\"___182\"]],[\"___185\",[\"__builtin_PackedArgs__\",\"___183\",\"___184\"]],[\"___186\",[\"__builtin_identity__\",[\"lambda\",[\"ctx\"],[\"__builtin_let__\",[[\"___113\",[\"__builtin_getattr__\",\"ctx\",{\"str\":\"inputs\"}]],[\"___114\",[\"__builtin_getitem__\",\"___113\",0]],[\"___115\",[\"__builtin_getattr__\",\"___114\",{\"str\":\"data_ptr\"}]]],[\"__builtin_identity__\",\"___115\"]]]]],[\"___187\",[\"__builtin_getattr__\",\"___186\",{\"str\":\"__function__\"}]],[\"___188\",[\"__builtin_identity__\",[\"lambda\",[\"ctx\"],[\"__builtin_let__\",[[\"___116\",[\"__builtin_getattr__\",\"ctx\",{\"str\":\"inputs\"}]],[\"___117\",[\"__builtin_getitem__\",\"___116\",1]],[\"___118\",[\"__builtin_getattr__\",\"___117\",{\"str\":\"data_ptr\"}]]],[\"__builtin_identity__\",\"___118\"]]]]],[\"___189\",[\"__builtin_getattr__\",\"___188\",{\"str\":\"__function__\"}]],[\"___190\",[\"__builtin_identity__\",[\"lambda\",[\"ctx\"],[\"__builtin_let__\",[[\"___119\",[\"__builtin_getattr__\",\"ctx\",{\"str\":\"inputs\"}]],[\"___120\",[\"__builtin_getitem__\",\"___119\",2]],[\"___121\",[\"__builtin_getattr__\",\"___120\",{\"str\":\"data_ptr\"}]]],[\"__builtin_identity__\",\"___121\"]]]]],[\"___191\",[\"__builtin_getattr__\",\"___190\",{\"str\":\"__function__\"}]],[\"___192\",[\"__builtin_identity__\",[\"lambda\",[\"ctx\"],[\"__builtin_let__\",[[\"___122\",[\"__builtin_getattr__\",\"ctx\",{\"str\":\"outputs\"}]],[\"___123\",[\"__builtin_getitem__\",\"___122\",0]],[\"___124\",[\"__builtin_getattr__\",\"___123\",{\"str\":\"data_ptr\"}]]],[\"__builtin_identity__\",\"___124\"]]]]],[\"___193\",[\"__builtin_getattr__\",\"___192\",{\"str\":\"__function__\"}]],[\"___194\",[\"__builtin_identity__\",[\"lambda\",[\"ctx\"],[\"__builtin_let__\",[[\"___5\",[\"__builtin_getattr__\",\"ctx\",{\"str\":\"inputs\"}]],[\"___6\",[\"__builtin_getitem__\",\"___5\",0]],[\"___7\",[\"__builtin_getattr__\",\"___6\",{\"str\":\"shape\"}]],[\"___8\",[\"__builtin_getitem__\",\"___7\",0]],[\"___9\",[\"DataValue\",\"___8\"]],[\"___11\",[\"__builtin_getattr__\",\"___9\",{\"str\":\"cast\"}]],[\"___12\",[\"__builtin_getattr__\",\"DataType\",{\"str\":\"const_int64\"}]],[\"___13\",[\"___11\",\"___12\"]],[\"___10\",[\"__builtin_identity__\",\"___13\"]]],[\"__builtin_identity__\",\"___10\"]]]]],[\"___195\",[\"__builtin_getattr__\",\"___194\",{\"str\":\"__function__\"}]],[\"___196\",[\"__builtin_identity__\",[\"lambda\",[\"ctx\"],[\"__builtin_let__\",[[\"___14\",[\"__builtin_getattr__\",\"ctx\",{\"str\":\"inputs\"}]],[\"___15\",[\"__builtin_getitem__\",\"___14\",0]],[\"___16\",[\"__builtin_getattr__\",\"___15\",{\"str\":\"shape\"}]],[\"___17\",[\"__builtin_getitem__\",\"___16\",1]],[\"___18\",[\"DataValue\",\"___17\"]],[\"___20\",[\"__builtin_getattr__\",\"___18\",{\"str\":\"cast\"}]],[\"___21\",[\"__builtin_getattr__\",\"DataType\",{\"str\":\"const_int64\"}]],[\"___22\",[\"___20\",\"___21\"]],[\"___19\",[\"__builtin_identity__\",\"___22\"]]],[\"__builtin_identity__\",\"___19\"]]]]],[\"___197\",[\"__builtin_getattr__\",\"___196\",{\"str\":\"__function__\"}]],[\"___198\",[\"__builtin_identity__\",[\"lambda\",[\"ctx\"],[\"__builtin_let__\",[[\"___23\",[\"__builtin_getattr__\",\"ctx\",{\"str\":\"inputs\"}]],[\"___24\",[\"__builtin_getitem__\",\"___23\",0]],[\"___25\",[\"__builtin_getattr__\",\"___24\",{\"str\":\"shape\"}]],[\"___26\",[\"__builtin_getitem__\",\"___25\",2]],[\"___27\",[\"DataValue\",\"___26\"]],[\"___29\",[\"__builtin_getattr__\",\"___27\",{\"str\":\"cast\"}]],[\"___30\",[\"__builtin_getattr__\",\"DataType\",{\"str\":\"const_int64\"}]],[\"___31\",[\"___29\",\"___30\"]],[\"___28\",[\"__builtin_identity__\",\"___31\"]]],[\"__builtin_identity__\",\"___28\"]]]]],[\"___199\",[\"__builtin_getattr__\",\"___198\",{\"str\":\"__function__\"}]],[\"___200\",[\"__builtin_identity__\",[\"lambda\",[\"ctx\"],[\"__builtin_let__\",[[\"___32\",[\"__builtin_getattr__\",\"ctx\",{\"str\":\"inputs\"}]],[\"___33\",[\"__builtin_getitem__\",\"___32\",0]],[\"___34\",[\"__builtin_getattr__\",\"___33\",{\"str\":\"shape\"}]],[\"___35\",[\"__builtin_getitem__\",\"___34\",3]],[\"___36\",[\"DataValue\",\"___35\"]],[\"___38\",[\"__builtin_getattr__\",\"___36\",{\"str\":\"cast\"}]],[\"___39\",[\"__builtin_getattr__\",\"DataType\",{\"str\":\"const_int64\"}]],[\"___40\",[\"___38\",\"___39\"]],[\"___37\",[\"__builtin_identity__\",\"___40\"]]],[\"__builtin_identity__\",\"___37\"]]]]],[\"___201\",[\"__builtin_getattr__\",\"___200\",{\"str\":\"__function__\"}]],[\"___202\",[\"__builtin_identity__\",[\"lambda\",[\"ctx\"],[\"__builtin_let__\",[[\"___125\",[\"__builtin_getattr__\",\"ctx\",{\"str\":\"inputs\"}]],[\"___126\",[\"__builtin_getitem__\",\"___125\",3]],[\"___127\",[\"__builtin_getattr__\",\"___126\",{\"str\":\"data_ptr\"}]]],[\"__builtin_identity__\",\"___127\"]]]]],[\"___203\",[\"__builtin_getattr__\",\"___202\",{\"str\":\"__function__\"}]],[\"___204\",[\"__builtin_list__\",0,1,2,3]],[\"___205\",[\"BuiltinSerializableAttrMap\",\"___185\"]],[\"___206\",[\"__builtin_list__\",0]],[\"___207\",[\"BuiltinSerializableAttrMap\",\"___178\"]],[\"___208\",[\"__builtin_list__\",\"___187\",\"___189\",\"___191\",\"___193\",\"___195\",\"___197\",\"___199\",\"___201\",\"___203\"]],[\"___209\",[\"__builtin_list__\",{\"str\":\"__builtin_ap_kernel_input_indexes_slices\"},\"___204\"]],[\"___210\",[\"__builtin_list__\",{\"str\":\"__builtin_ap_kernel_input_name_to_index\"},\"___205\"]],[\"___211\",[\"__builtin_list__\",{\"str\":\"__builtin_ap_kernel_output_indexes_slices\"},\"___206\"]],[\"___212\",[\"__builtin_list__\",{\"str\":\"__builtin_ap_kernel_output_name_to_index\"},\"___207\"]],[\"___213\",[\"__builtin_list__\",{\"str\":\"kernel_args_getters\"},\"___208\"]],[\"___214\",[\"__builtin_list__\"]],[\"___215\",[\"__builtin_list__\",\"___209\",\"___210\",\"___211\",\"___212\",\"___213\"]],[\"___216\",[\"__builtin_PackedArgs__\",\"___214\",\"___215\"]]],[\"BuiltinSerializableAttrMap\",\"___216\"]]]",num_outputs:1,rnel_dispatch_lambda:"[\"lambda\",[\"ctx\"],[\"__builtin_let__\",[[\"ap\",[\"import\",{\"str\":\"ap\"}]],[\"___476\",[\"__builtin_getattr__\",\"ctx\",{\"str\":\"get_so_function\"}]],[\"___477\",[\"___476\",{\"str\":\"AttentionVariadicKernel\"}]],[\"so_func\",[\"__builtin_identity__\",\"___477\"]],[\"___479\",[\"__builtin_getattr__\",\"ctx\",{\"str\":\"device_ctx\"}]],[\"___478\",[\"__builtin_getattr__\",\"___479\",{\"str\":\"get_stream_addr_as_void_ptr\"}]],[\"___480\",[\"___478\"]],[\"stream_ptr\",[\"__builtin_identity__\",\"___480\"]],[\"___482\",[\"__builtin_getattr__\",\"ctx\",{\"str\":\"kernel_dispatch_const_data\"}]],[\"___481\",[\"__builtin_getattr__\",\"___482\",{\"str\":\"kernel_args_getters\"}]],[\"getters\",[\"__builtin_identity__\",\"___481\"]],[\"___483\",[\"__builtin_getattr__\",\"ap\",{\"str\":\"map\"}]],[\"___485\",[\"___483\",[\"lambda\",[\"getter\"],[\"__builtin_let__\",[[\"___484\",[\"getter\",\"ctx\"]]],[\"__builtin_identity__\",\"___484\"]]],\"getters\"]],[\"___486\",[\"__builtin_starred__\",\"___485\"]],[\"___487\",[\"__builtin_list__\",\"stream_ptr\",\"___486\"]],[\"args\",[\"__builtin_identity__\",\"___487\"]],[\"___488\",[\"__builtin_getattr__\",\"ap\",{\"str\":\"apply\"}]],[\"___489\",[\"___488\",\"so_func\",\"args\"]],[\"___490\",[\"__builtin_identity__\",\"___489\"]]],[\"__builtin_identity__\",null]]]",stop_gradient:[false]} : (vec[tensor<1x2048x32x128xf16>,tensor<1x2048x32x128xf16>,tensor<1x2048x32x128xf16>,tensor<128xf16>]) -> vec[tensor<1x2048x32x128xf16>]
+    (%6) = "builtin.split" (%5) {stop_gradient:[false]} : (vec[tensor<1x2048x32x128xf16>]) -> tensor<1x2048x32x128xf16>
+    () = "builtin.shadow_output" (%6) {output_name:"output_0"} : (tensor<1x2048x32x128xf16>) -> 
+}
+[2026-11-03 22:11:46,830] [    INFO] test_ap_base.py:428 - [TestAttentionAddGelu] Successfully matched ap_variadic operator in compiled program.
+I1103 22:11:46.832947 132112 pir_interpreter.cc:1605] New Executor is Running ...
+I1103 22:11:46.833264 132112 pir_interpreter.cc:1626] pir interpreter is running by trace mode ...
+==================================================================
+-- [ProfileBestConfig] No 0, elapsed_time: 99.9711 ms
+-- [ProfileBestConfig] No 1, elapsed_time: 99.9332 ms
+-- [ProfileBestConfig] No 2, elapsed_time: 98.7658 ms
+-- [ProfileBestConfig] No 3, elapsed_time: 78.0349 ms
+-- [ProfileBestConfig] No 4, elapsed_time: 77.9684 ms
+-- [ProfileBestConfig] No 5, elapsed_time: 78.206 ms
+-- [ProfileBestConfig] No 6, elapsed_time: 78.1394 ms
+-- [ProfileBestConfig] No 7, elapsed_time: 77.9909 ms
+-- [ProfileBestConfig] No 8, elapsed_time: 77.951 ms
+-- [ProfileBestConfig] No 9, elapsed_time: 77.9581 ms
+-- [ProfileBestConfig] No 10, elapsed_time: 78.1701 ms
+-- [ProfileBestConfig] No 11, elapsed_time: 77.9244 ms
+-- [ProfileBestConfig] No 12, elapsed_time: 78.4015 ms
+-- [ProfileBestConfig] No 13, elapsed_time: 78.764 ms
+-- [ProfileBestConfig] No 14, elapsed_time: 78.1875 ms
+-- [ProfileBestConfig] No 15, elapsed_time: 78.7364 ms
+-- [ProfileBestConfig] No 16, elapsed_time: 78.7855 ms
+-- [ProfileBestConfig] No 17, elapsed_time: 78.7569 ms
+-- [ProfileBestConfig] No 18, elapsed_time: 78.7436 ms
+-- [ProfileBestConfig] No 19, elapsed_time: 78.762 ms
+-- [ProfileBestConfig] No 20, elapsed_time: 78.762 ms
+-- [ProfileBestConfig] No 21, elapsed_time: 78.463 ms
+-- [ProfileBestConfig] No 22, elapsed_time: 78.891 ms
+-- [ProfileBestConfig] best config idx: 11
+==================================================================
+[2026-11-03 22:11:49,390] [    INFO] test_ap_base.py:394 - [TestAttentionAddGelu] Accuracy test passed (atol=0.1, rtol=0.1).
+[2026-11-03 22:11:49,391] [    INFO] test_ap_base.py:433 - Accuracy check passed.
+[2026-11-03 22:11:49,391] [    INFO] test_ap_base.py:435 - Benchmark_for_eager:
+I1103 22:11:49.509845 132112 chrometracing_logger.cc:49] writing profiling data to ./profiler_log/host_yq01-inf-hic-k8s-a100-aa24-0087.yq01.baidu.compid_132112_time_2026_11_03_22_11_49_509591.paddle_trace.json
+[2026-11-03 22:11:49,672] [    INFO] test_ap_base.py:91 - Profiler summary:
+-------------------Device Summary-------------------
+------------------------------  --------------------  
+Device                          Utilization (%)       
+------------------------------  --------------------  
+CPU(Process)                    87.50                 
+CPU(System)                     35.94                 
+GPU0                            693.16                
+------------------------------  --------------------  
+Note:
+CPU(Process) Utilization = Current process CPU time over all cpu cores / elapsed time, so max utilization can be reached 100% * number of cpu cores.
+CPU(System) Utilization = All processes CPU time over all cpu cores(busy time) / (busy time + idle time).
+GPU Utilization = Current process GPU time / elapsed time.
+----------------------------------------------------
+
+
+---------------------------------------------Overview Summary---------------------------------------------
+Time unit: ms
+-------------------------  -------------------------  -------------------------  -------------------------  
+Event Type                 Calls                      CPU Time                   Ratio (%)                  
+-------------------------  -------------------------  -------------------------  -------------------------  
+ProfileStep                100                        10.93                      100.00                     
+  UserDefined              300                        8.25                       75.49                      
+  Operator                 300                        7.16                       65.46                      
+  DygraphKernelLaunch      300                        3.97                       36.33                      
+  CudaRuntime              1800                       2.46                       22.46                      
+  OperatorInner            600                        0.79                       7.22                       
+-------------------------  -------------------------  -------------------------  -------------------------  
+                           Calls                      GPU Time                   Ratio (%)                  
+-------------------------  -------------------------  -------------------------  -------------------------  
+  Kernel                   300                        75.79                      693.16                     
+-------------------------  -------------------------  -------------------------  -------------------------  
+Note:
+In this table, We sum up all collected events in terms of event type.
+The time of events collected on host are presented as CPU Time, and as GPU Time if on device.
+Events with different types may overlap or inclusion, e.g. Operator includes OperatorInner, so the sum of ratios is not 100%.
+The time of events in the same type with overlap will not calculate twice, and all time is summed after merged.
+Example:
+Thread 1:
+  Operator: |___________|     |__________|
+Thread 2:
+  Operator:   |____________|     |___|
+After merged:
+  Result:   |______________|  |__________|
+
+----------------------------------------------------------------------------------------------------------
+
+
+----------------------------------------------------------------------Operator Summary----------------------------------------------------------------------
+Time unit: ms
+----------------------------------------------------  ------  ----------------------------------------  ----------------------------------------  ----------  
+Name                                                  Calls   CPU Total / Avg / Max / Min / Ratio(%)    GPU Total / Avg / Max / Min / Ratio(%)    FLOPs       
+----------------------------------------------------  ------  ----------------------------------------  ----------------------------------------  ----------  
+-----------------------------------------------------------------Thread: All threads merged-----------------------------------------------------------------
+memory_efficient_attention dygraph                    100     2.97 / 0.03 / 0.05 / 0.03 / 41.50         70.26 / 0.70 / 0.71 / 0.70 / 92.69        0           
+  memory_efficient_attention node_creation            100     0.16 / 0.00 / 0.00 / 0.00 / 5.49          0.00 / 0.00 / 0.00 / 0.00 / 0.00          -           
+  memory_efficient_attention infer_meta               100     0.21 / 0.00 / 0.02 / 0.00 / 7.05          0.00 / 0.00 / 0.00 / 0.00 / 0.00          -           
+  memory_efficient_attention kernel launch            100     1.53 / 0.02 / 0.03 / 0.01 / 51.39         70.26 / 0.70 / 0.71 / 0.70 / 100.00       -           
+    phi::fmha_cutlassF_f16_aligned_32x128_rf_sm80...  100     - / - / - / - / -                         70.26 / 0.70 / 0.71 / 0.70 / 100.00       -           
+add dygraph                                           100     2.42 / 0.02 / 0.04 / 0.02 / 33.75         2.84 / 0.03 / 0.03 / 0.03 / 3.75          0           
+  add node_creation                                   100     0.14 / 0.00 / 0.00 / 0.00 / 5.91          0.00 / 0.00 / 0.00 / 0.00 / 0.00          -           
+  add infer_meta                                      100     0.13 / 0.00 / 0.00 / 0.00 / 5.21          0.00 / 0.00 / 0.00 / 0.00 / 0.00          -           
+  add kernel launch                                   100     1.46 / 0.01 / 0.03 / 0.01 / 60.34         2.84 / 0.03 / 0.03 / 0.03 / 100.00        -           
+    void phi::funcs::VectorizedBroadcastKernel<ph...  100     - / - / - / - / -                         2.84 / 0.03 / 0.03 / 0.03 / 100.00        -           
+gelu dygraph                                          100     1.77 / 0.02 / 0.03 / 0.02 / 24.75         2.70 / 0.03 / 0.03 / 0.03 / 3.56          0           
+  gelu node_creation                                  100     0.07 / 0.00 / 0.00 / 0.00 / 3.95          0.00 / 0.00 / 0.00 / 0.00 / 0.00          -           
+  gelu infer_meta                                     100     0.08 / 0.00 / 0.00 / 0.00 / 4.41          0.00 / 0.00 / 0.00 / 0.00 / 0.00          -           
+  gelu kernel launch                                  100     0.99 / 0.01 / 0.02 / 0.01 / 55.76         2.70 / 0.03 / 0.03 / 0.03 / 100.00        -           
+    void phi::funcs::VectorizedElementwiseKernel<...  100     - / - / - / - / -                         2.70 / 0.03 / 0.03 / 0.03 / 100.00        -           
+----------------------------------------------------  ------  ----------------------------------------  ----------------------------------------  ----------  
+
+
+---------------------------------------------------------------Kernel Summary---------------------------------------------------------------
+Time unit: ms
+------------------------------------------------------------------------------------------  ------  ----------------------------------------  
+Name                                                                                        Calls   GPU Total / Avg / Max / Min / Ratio(%)    
+------------------------------------------------------------------------------------------  ------  ----------------------------------------  
+phi::fmha_cutlassF_f16_aligned_32x128_rf_sm80(AttentionKernel<cutlass::half_t, cutlass:...  100     70.26 / 0.70 / 0.71 / 0.70 / 92.69        
+void phi::funcs::VectorizedBroadcastKernel<phi::funcs::AddFunctor<phi::dtype::float16>,...  100     2.84 / 0.03 / 0.03 / 0.03 / 3.75          
+void phi::funcs::VectorizedElementwiseKernel<phi::dtype::float16, phi::GeluWithoutAppro...  100     2.70 / 0.03 / 0.03 / 0.03 / 3.56          
+------------------------------------------------------------------------------------------  ------  ----------------------------------------  
+
+
+
+[2026-11-03 22:11:49,673] [    INFO] test_ap_base.py:438 - Benchmark_for_AP:
+I1103 22:11:49.771461 132112 chrometracing_logger.cc:49] writing profiling data to ./profiler_log/host_yq01-inf-hic-k8s-a100-aa24-0087.yq01.baidu.compid_132112_time_2026_11_03_22_11_49_771330.paddle_trace.json
+[2026-11-03 22:11:49,836] [    INFO] test_ap_base.py:91 - Profiler summary:
+-------------------Device Summary-------------------
+------------------------------  --------------------  
+Device                          Utilization (%)       
+------------------------------  --------------------  
+CPU(Process)                    100.00                
+CPU(System)                     36.25                 
+GPU0                            173.57                
+------------------------------  --------------------  
+Note:
+CPU(Process) Utilization = Current process CPU time over all cpu cores / elapsed time, so max utilization can be reached 100% * number of cpu cores.
+CPU(System) Utilization = All processes CPU time over all cpu cores(busy time) / (busy time + idle time).
+GPU Utilization = Current process GPU time / elapsed time.
+----------------------------------------------------
+
+
+---------------------------------------------Overview Summary---------------------------------------------
+Time unit: ms
+-------------------------  -------------------------  -------------------------  -------------------------  
+Event Type                 Calls                      CPU Time                   Ratio (%)                  
+-------------------------  -------------------------  -------------------------  -------------------------  
+ProfileStep                100                        44.89                      100.00                     
+  UserDefined              400                        35.04                      78.08                      
+  Operator                 200                        33.90                      75.52                      
+  StaticKernelLaunch       100                        27.78                      61.89                      
+  CudaRuntime              400                        1.71                       3.81                       
+-------------------------  -------------------------  -------------------------  -------------------------  
+                           Calls                      GPU Time                   Ratio (%)                  
+-------------------------  -------------------------  -------------------------  -------------------------  
+  Kernel                   100                        77.91                      173.57                     
+-------------------------  -------------------------  -------------------------  -------------------------  
+Note:
+In this table, We sum up all collected events in terms of event type.
+The time of events collected on host are presented as CPU Time, and as GPU Time if on device.
+Events with different types may overlap or inclusion, e.g. Operator includes OperatorInner, so the sum of ratios is not 100%.
+The time of events in the same type with overlap will not calculate twice, and all time is summed after merged.
+Example:
+Thread 1:
+  Operator: |___________|     |__________|
+Thread 2:
+  Operator:   |____________|     |___|
+After merged:
+  Result:   |______________|  |__________|
+
+----------------------------------------------------------------------------------------------------------
+
+
+----------------------------------------------------------------------Operator Summary----------------------------------------------------------------------
+Time unit: ms
+----------------------------------------------------  ------  ----------------------------------------  ----------------------------------------  ----------  
+Name                                                  Calls   CPU Total / Avg / Max / Min / Ratio(%)    GPU Total / Avg / Max / Min / Ratio(%)    FLOPs       
+----------------------------------------------------  ------  ----------------------------------------  ----------------------------------------  ----------  
+-----------------------------------------------------------------Thread: All threads merged-----------------------------------------------------------------
+pd_op.ap_variadic                                     100     33.81 / 0.34 / 0.36 / 0.33 / 99.74        77.91 / 0.78 / 0.78 / 0.76 / 100.00       0           
+  PhiKernelInstruction::infermeta                     100     5.38 / 0.05 / 0.07 / 0.05 / 15.93         0.00 / 0.00 / 0.00 / 0.00 / 0.00          -           
+  ap_variadic kernel launch                           100     27.78 / 0.28 / 0.30 / 0.27 / 82.17        77.91 / 0.78 / 0.78 / 0.76 / 100.00       -           
+    void attention_kernel_batched_impl<AttentionK...  100     - / - / - / - / -                         77.91 / 0.78 / 0.78 / 0.76 / 100.00       -           
+builtin_combine_instruction                           100     0.09 / 0.00 / 0.00 / 0.00 / 0.26          0.00 / 0.00 / 0.00 / 0.00 / 0.00          0           
+----------------------------------------------------  ------  ----------------------------------------  ----------------------------------------  ----------  
+
+
+---------------------------------------------------------------Kernel Summary---------------------------------------------------------------
+Time unit: ms
+------------------------------------------------------------------------------------------  ------  ----------------------------------------  
+Name                                                                                        Calls   GPU Total / Avg / Max / Min / Ratio(%)    
+------------------------------------------------------------------------------------------  ------  ----------------------------------------  
+void attention_kernel_batched_impl<AttentionKernel<cutlass::half_t, cutlass::arch::Sm80...  100     77.91 / 0.78 / 0.78 / 0.76 / 100.00       
+------------------------------------------------------------------------------------------  ------  ----------------------------------------  
+
+
+
+[2026-11-03 22:11:49,837] [    INFO] test_ap_base.py:442 - EagerTime: 75.7900 ms, APTime: 77.9100 ms, Speedup: 0.97x
+.
+----------------------------------------------------------------------
+Ran 1 test in 4.054s
+
+OK
+all prim enabled:  True
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/sys/ap.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/sys/__builtin_trivial_op_names__.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/sys/__builtin__.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/sys/__builtin_registry_item__.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/__main__.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/matmul_variadic_tpl.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/conv2d_variadic_ptn.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/variadic_mixin.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/kernel_arg_translator_util.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/kernel_arg_id_util.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/code_gen_value_util.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/topo_drr_pass.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/umprime.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/matmul_variadic_ptn.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/low_level_ir_code_gen_ctx_util.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/index_program_translator_util.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/attention_variadic_ptn.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/abstract_drr.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/index_drr_pass_util.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/epilogue_access_topo_simplify.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/conv2d_variadic_tpl.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/op_compute_translator_util.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/op_conversion_drr_pass.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/index_code_gen_value_util.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/attention_variadic_tpl.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/program_translator_util.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/access_topo_drr.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/op_index_translator_util.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/device/cuda/compile_command_util.py
+============================================Perf Summary============================================
+Time Unit: s, IPS Unit: steps/s
+|                 |       avg       |       max       |       min       |
+|    batch_cost   |     0.00129     |     0.09079     |     0.00011     |
+|       ips       |    773.97652    |    9018.49340   |     11.01450    |
+============================================Perf Summary============================================
+Time Unit: s, IPS Unit: steps/s
+|                 |       avg       |       max       |       min       |
+|    batch_cost   |     0.00092     |     0.04244     |     0.00044     |
+|       ips       |    1091.06948   |    2249.03194   |     23.56216    |
