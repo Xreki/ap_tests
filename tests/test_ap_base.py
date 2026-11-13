@@ -26,6 +26,7 @@ import paddle
 import paddle.profiler as profiler
 import paddle.incubate.cc as pcc
 import paddle.incubate.cc.typing as pct
+from paddle.nn.functional.flash_attention import flash_attention
 
 os.environ["AP_WORKSPACE_DIR"] = "/tmp/paddle_ap_workspace"
 
@@ -185,11 +186,75 @@ class Conv2dConfig:
         ]
 
 
+@dataclass
+class AttentionConfig:
+    """Geometry of a `flash_attn + epilogue` subgraph.
+
+    Query / key / value / output use the BSHD (BMHK) layout taken by the
+    `flash_attn` op and the fused kernel (see `FlashAttnEpilogueFusion` in
+    `attention_variadic_ptn.py`): query `[B, M, H, D]`, key `[B, N, H, D]`,
+    value `[B, N, H, D]`, output `[B, M, H, D]`.  `D` is head_dim ==
+    head_dim_value and must be a compile-time constant.
+    """
+
+    B: int
+    M: int
+    N: int
+    H: int
+    D: int
+
+    def __post_init__(self):
+        # Allow a CLI override (set via main()) to replace the hardcoded
+        # batch size in every test's setUp without touching each test.
+        if _BATCH_SIZE_OVERRIDE is not None:
+            self.B = _BATCH_SIZE_OVERRIDE
+
+    @property
+    def q_shape(self):
+        return [self.B, self.M, self.H, self.D]
+
+    @property
+    def k_shape(self):
+        return [self.B, self.N, self.H, self.D]
+
+    @property
+    def v_shape(self):
+        return [self.B, self.N, self.H, self.D]
+
+    @property
+    def out_shape(self):
+        return [self.B, self.M, self.H, self.D]
+
+
+# Typical model attention geometries, all in BMHK layout [B, M/N, H, D].
+# hidden_size = H * D:
+# - BERT-base:   hidden 768  = 12 * 64, seqlen 512.
+# - GPT-2 small: hidden 768  = 12 * 64, seqlen 1024 (causal decoder).
+# - LLaMA-7B:    hidden 4096 = 32 * 128, seqlen 2048 (causal decoder).
+# - ViT-B/16:    hidden 768  = 12 * 64, 196 patches + 1 CLS = 197 tokens.
+ATTENTION_PRESETS = {
+    "bert_base": dict(B=8, M=512, N=512, H=12, D=64),
+    "gpt2_small": dict(B=4, M=1024, N=1024, H=12, D=64),
+    "llama_7b": dict(B=1, M=2048, N=2048, H=32, D=128),
+    "vit_base": dict(B=8, M=197, N=197, H=12, D=64),
+}
+
+
+def make_attention_config(preset, **overrides):
+    """Build an `AttentionConfig` from a typical model preset."""
+    return AttentionConfig(**{**ATTENTION_PRESETS[preset], **overrides})
+
+
 def make_dim_vars(shape):
     return [pct.DimVar(dim) for dim in shape]
 
 
 class APTestBase(unittest.TestCase):
+    # Default numerical tolerance; attention tests override it because fp16
+    # attention accumulates differently from CUTLASS (~1e-2 discrepancy).
+    atol = 1e-2
+    rtol = 1e-2
+
     def init_tensors(self, dtype, tensor_shapes):
         tensors = []
         for shape in tensor_shapes:
@@ -205,30 +270,29 @@ class APTestBase(unittest.TestCase):
             backend_device=backend_device,
         )
         generated_pir_program = _get_pir_program(fused_func, tensor_args)
-        self.assertTrue(
-            'pd_op.ap_variadic' in generated_pir_program, "No pd_op.ap_variadic is found in compiled program. AP fusion failed!"
+        self.assertIn(
+            'pd_op.ap_variadic', generated_pir_program, "No pd_op.ap_variadic is found in compiled program. AP fusion failed!"
         )
         logger.info("[%s] Successfully matched ap_variadic operator in compiled program.", type(self).__name__)
         return fused_func
 
     def check_accuracy(self, func, fused_func, tensor_args):
-        atol, rtol = 1e-2, 1e-2
         dy_outs = func(*tensor_args)
         ap_outs = fused_func(*tensor_args)
         for dy_out, ap_out in zip(dy_outs, ap_outs):
-            np.testing.assert_allclose(dy_out, ap_out, atol=atol, rtol=rtol)
+            np.testing.assert_allclose(dy_out, ap_out, atol=self.atol, rtol=self.rtol)
         logger.info(
             "[%s] Accuracy test passed (atol=%s, rtol=%s).",
             type(self).__name__,
-            atol,
-            rtol,
+            self.atol,
+            self.rtol,
         )
 
     def run_subgraph_test(self, func, tensor_args):
         """Compile `func`, check it against eager, then benchmark both."""
         logger.info("Start test: %s", self.id())
         fused_func = self.get_compiled_func(func, tensor_args)
-        self.check_accuracy(fused_func, func, tensor_args)
+        self.check_accuracy(func, fused_func, tensor_args)
         logger.info("Accuracy check passed.")
 
         logger.info("Benchmark_for_eager:")
@@ -281,6 +345,41 @@ class Conv2dAPTestBase(APTestBase):
             stride=self.conv_config.stride,
             data_format="NHWC",
         )
+
+
+class AttentionAPTestBase(APTestBase):
+    """Base for `flash_attn + epilogue` fusion tests.
+
+    The subgraph calls `paddle.nn.functional.flash_attention`, so it lowers to
+    `pd_op.flash_attn` and is fused by `FlashAttnEpilogueFusion`.
+    """
+
+    # fp16 attention accumulates softmax in float but the reference path
+    # differs from flash attention by ~1e-2, so use a looser tolerance than
+    # the matmul / conv tests.
+    atol = 1e-1
+    rtol = 1e-1
+
+    def setUp(self):
+        # Keep CINN from rewriting/denying ops in the attention subgraph before
+        # the AP DRR pass runs (same setup as Paddle's own
+        # test/ap/test_attention_epilogue.py).
+        self.origin_flags = paddle.get_flags(['FLAGS_deny_cinn_ops'])
+        paddle.set_flags({'FLAGS_deny_cinn_ops': ""})
+
+        self.dtype = 'float16'
+        self.q_shape = self.attention_config.q_shape
+        self.k_shape = self.attention_config.k_shape
+        self.v_shape = self.attention_config.v_shape
+
+    def tearDown(self):
+        paddle.set_flags(self.origin_flags)
+
+    def attention(self, q, k, v):
+        """`training=False` -> `is_test`, no dropout / seed / attn mask, so
+        only the attention output is consumed downstream."""
+        o, _ = flash_attention(q, k, v, training=False)
+        return o
 
 
 def main():
