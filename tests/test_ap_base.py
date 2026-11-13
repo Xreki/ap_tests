@@ -26,9 +26,7 @@ import paddle
 import paddle.profiler as profiler
 import paddle.incubate.cc as pcc
 import paddle.incubate.cc.typing as pct
-from paddle.incubate.nn.memory_efficient_attention import (
-    memory_efficient_attention,
-)
+from paddle.nn.functional.flash_attention import flash_attention
 
 os.environ["AP_WORKSPACE_DIR"] = "/tmp/paddle_ap_workspace"
 
@@ -190,13 +188,13 @@ class Conv2dConfig:
 
 @dataclass
 class AttentionConfig:
-    """Geometry of a `memory_efficient_attention + epilogue` subgraph.
+    """Geometry of a `flash_attn + epilogue` subgraph.
 
-    Query / key / value / output use the BMHK layout required by the CUTLASS
-    FMHA backend (see `attention_variadic_ptn.py`):
-    query `[B, M, H, D]`, key `[B, N, H, D]`, value `[B, N, H, D]`,
-    output `[B, M, H, D]`.  `D` is head_dim == head_dim_value and must be a
-    compile-time constant.
+    Query / key / value / output use the BSHD (BMHK) layout taken by the
+    `flash_attn` op and the fused kernel (see `FlashAttnEpilogueFusion` in
+    `attention_variadic_ptn.py`): query `[B, M, H, D]`, key `[B, N, H, D]`,
+    value `[B, N, H, D]`, output `[B, M, H, D]`.  `D` is head_dim ==
+    head_dim_value and must be a compile-time constant.
     """
 
     B: int
@@ -350,11 +348,15 @@ class Conv2dAPTestBase(APTestBase):
 
 
 class AttentionAPTestBase(APTestBase):
-    """Base for `memory_efficient_attention + epilogue` fusion tests."""
+    """Base for `flash_attn + epilogue` fusion tests.
+
+    The subgraph calls `paddle.nn.functional.flash_attention`, so it lowers to
+    `pd_op.flash_attn` and is fused by `FlashAttnEpilogueFusion`.
+    """
 
     # fp16 attention accumulates softmax in float but the reference path
-    # differs from CUTLASS by ~1e-2, so use a looser tolerance than the
-    # matmul / conv tests.
+    # differs from flash attention by ~1e-2, so use a looser tolerance than
+    # the matmul / conv tests.
     atol = 1e-1
     rtol = 1e-1
 
@@ -374,8 +376,10 @@ class AttentionAPTestBase(APTestBase):
         paddle.set_flags(self.origin_flags)
 
     def attention(self, q, k, v):
-        """`is_test` (training=False) keeps only the output path live."""
-        return memory_efficient_attention(q, k, v, training=False)
+        """`training=False` -> `is_test`, no dropout / seed / attn mask, so
+        only the attention output is consumed downstream."""
+        o, _ = flash_attention(q, k, v, training=False)
+        return o
 
 
 def main():
