@@ -54,23 +54,41 @@ def main():
         action="store_true",
         help="递归扫描子目录 (默认只扫描指定目录顶层)",
     )
+    parser.add_argument(
+        "--files",
+        nargs="+",
+        default=None,
+        help="仅分析指定的日志文件 (优先于扫描 log_dir), 供批量脚本汇总本次结果",
+    )
     args = parser.parse_args()
 
     log_dir = Path(args.log_dir)
-    if not log_dir.is_dir():
+    if args.files:
+        txt_files = [Path(f) for f in args.files if Path(f).is_file()]
+        if not txt_files:
+            print("指定的日志文件均不存在。", file=sys.stderr)
+            sys.exit(1)
+    elif not log_dir.is_dir():
         print(f"目录不存在: {log_dir}", file=sys.stderr)
         sys.exit(1)
+    else:
+        txt_files = (
+            log_dir.rglob("*.txt") if args.recursive else log_dir.glob("*.txt")
+        )
 
     rows = []
-    txt_files = log_dir.rglob("*.txt") if args.recursive else log_dir.glob("*.txt")
     for txt in sorted(txt_files):
         result = parse_file(txt)
         if result is None:
             continue
         test_name, batch, eager, ap, speedup = result
+        try:
+            source = str(txt.relative_to(log_dir))
+        except ValueError:
+            source = str(txt)
         rows.append(
             {
-                "source": str(txt.relative_to(log_dir)),
+                "source": source,
                 "test": test_name,
                 "batch_size": batch,
                 "eager_ms": eager,

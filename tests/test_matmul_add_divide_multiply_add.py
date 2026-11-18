@@ -68,7 +68,7 @@ class TestMatmulAddDivideMultiplyAdd(test_ap_base.APTestBase):
 
         foo = self.get_subgraph()
         fused_foo = self.get_compiled_func(foo, tensor_args)
-        self.check_accuracy(fused_foo, foo, tensor_args)
+        self.check_accuracy(foo, fused_foo, tensor_args)
         logger.info("Accuracy check passed.")
 
         logger.info("Benchmark_for_eager:")

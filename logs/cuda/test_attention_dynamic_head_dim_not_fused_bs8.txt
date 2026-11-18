@@ -1,0 +1,135 @@
+[2026-11-03 22:15:20,224] [    INFO] test_attention_dynamic_head_dim_not_fused.py:75 - Start test: __main__.TestAttentionDynamicHeadDimNotFused.test_subgraph
+W1103 22:15:20.509035 135692 gpu_resources.cc:116] Please NOTE: device: 0, GPU Compute Capability: 8.0, Driver API Version: 12.6, Runtime API Version: 12.8
+W1103 22:15:20.957561 135692 eager_utils.cc:3617] Paddle static graph(PIR) not support input out tensor for now!!!!!
+I1103 22:15:21.038880 135692 add_cinn_pass.cc:336] Compiling subgraph with CINN backend ...
+I1103 22:15:21.045847 135692 add_cinn_pass.cc:293] Enable AP Generic DRR Pass
+E1103 22:15:21.045867 135692 add_cinn_pass.cc:238] before ConvertPdFacadeToApFacadePass:
+{
+    (%0) = "pd_op.data" () {dtype:float16,name:"q",place:Place(undefined:0),shape:[4,1024,12,-1],stop_gradient:[false]} : () -> tensor<4x1024x12x-1xf16>
+    (%1) = "pd_op.data" () {dtype:float16,name:"k",place:Place(undefined:0),shape:[4,1024,12,-1],stop_gradient:[false]} : () -> tensor<4x1024x12x-1xf16>
+    (%2) = "pd_op.data" () {dtype:float16,name:"v",place:Place(undefined:0),shape:[4,1024,12,-1],stop_gradient:[false]} : () -> tensor<4x1024x12x-1xf16>
+    (%3) = "pd_op.data" () {dtype:float16,name:"bias",place:Place(undefined:0),shape:[4,1024,12,-1],stop_gradient:[false]} : () -> tensor<4x1024x12x-1xf16>
+    (%4) = "pd_op.full" () {dtype:int64,place:Place(cpu),shape:[1],stop_gradient:[true],value:-1} : () -> tensor<1xi64>
+    (%5) = "pd_op.full" () {dtype:int64,place:Place(cpu),shape:[1],stop_gradient:[true],value:-1} : () -> tensor<1xi64>
+    (%6, %7, %8) = "pd_op.memory_efficient_attention" (%0, %1, %2, <<NULL VALUE>>, <<NULL VALUE>>, <<NULL VALUE>>, <<NULL VALUE>>, <<NULL VALUE>>, %4, %5) {causal:false,dropout_p:0,is_test:true,scale:-1,stop_gradient:[false,false,false]} : (tensor<4x1024x12x-1xf16>, tensor<4x1024x12x-1xf16>, tensor<4x1024x12x-1xf16>, <<NULL TYPE>>, <<NULL TYPE>>, <<NULL TYPE>>, <<NULL TYPE>>, <<NULL TYPE>>, tensor<1xi64>, tensor<1xi64>) -> tensor<4x1024x12x-1xf16>, tensor<12x4xf32>, tensor<2xi64>
+    (%9) = "cinn_op.fusion" () -> tensor<4x1024x12x-1xf16> {
+        (%10) = "cinn_op.generate_shape" (%6, %3) {output_dim_exprs:[4,1024,12,["Broadcast","S2","S3"]],stop_gradient:[false],symbol_bindings:[["ShapeSymbolBinding","S2",0,3],["ShapeSymbolBinding","S3",1,3]]} : (tensor<4x1024x12x-1xf16>, tensor<4x1024x12x-1xf16>) -> tensor<4xi64>
+        (%11) = "pd_op.expand" (%6, %10) {stop_gradient:[false]} : (tensor<4x1024x12x-1xf16>, tensor<4xi64>) -> tensor<-1x-1x-1x-1xf16>
+        (%12) = "cinn_op.generate_shape" (%6, %3) {output_dim_exprs:[4,1024,12,["Broadcast","S2","S3"]],stop_gradient:[false],symbol_bindings:[["ShapeSymbolBinding","S2",0,3],["ShapeSymbolBinding","S3",1,3]]} : (tensor<4x1024x12x-1xf16>, tensor<4x1024x12x-1xf16>) -> tensor<4xi64>
+        (%13) = "pd_op.expand" (%3, %12) {stop_gradient:[false]} : (tensor<4x1024x12x-1xf16>, tensor<4xi64>) -> tensor<-1x-1x-1x-1xf16>
+        (%14) = "pd_op.add" (%11, %13) {stop_gradient:[false]} : (tensor<-1x-1x-1x-1xf16>, tensor<-1x-1x-1x-1xf16>) -> tensor<4x1024x12x-1xf16>
+        (%15) = "pd_op.full" () {comp_op_name:"pd_op.relu",dtype:float16,place:Place(undefined:0),shape:[],stop_gradient:[true],value:0} : () -> tensor<f16>
+        (%16) = "cinn_op.generate_shape" (%6, %3) {output_dim_exprs:[4,1024,12,["Broadcast","S2","S3"]],stop_gradient:[false],symbol_bindings:[["ShapeSymbolBinding","S2",0,3],["ShapeSymbolBinding","S3",1,3]]} : (tensor<4x1024x12x-1xf16>, tensor<4x1024x12x-1xf16>) -> tensor<4xi64>
+        (%17) = "pd_op.expand" (%15, %16) {stop_gradient:[false]} : (tensor<f16>, tensor<4xi64>) -> tensor<-1x-1x-1x-1xf16>
+        (%18) = "pd_op.maximum" (%14, %17) {comp_op_name:"pd_op.relu",stop_gradient:[false]} : (tensor<4x1024x12x-1xf16>, tensor<-1x-1x-1x-1xf16>) -> tensor<4x1024x12x-1xf16>
+        () = "cf.yield" (%18) {} : (tensor<4x1024x12x-1xf16>) -> 
+    }
+    () = "builtin.shadow_output" (%9) {output_name:"output_0"} : (tensor<4x1024x12x-1xf16>) -> 
+}
+E1103 22:15:21.045993 135692 add_cinn_pass.cc:243] after ConvertPdFacadeToApFacadePass:
+{
+    (%0) = "pd_op.data" () {dtype:float16,name:"q",place:Place(undefined:0),shape:[4,1024,12,-1],stop_gradient:[false]} : () -> tensor<4x1024x12x-1xf16>
+    (%1) = "pd_op.data" () {dtype:float16,name:"k",place:Place(undefined:0),shape:[4,1024,12,-1],stop_gradient:[false]} : () -> tensor<4x1024x12x-1xf16>
+    (%2) = "pd_op.data" () {dtype:float16,name:"v",place:Place(undefined:0),shape:[4,1024,12,-1],stop_gradient:[false]} : () -> tensor<4x1024x12x-1xf16>
+    (%3) = "pd_op.data" () {dtype:float16,name:"bias",place:Place(undefined:0),shape:[4,1024,12,-1],stop_gradient:[false]} : () -> tensor<4x1024x12x-1xf16>
+    (%4) = "pd_op.full" () {dtype:int64,place:Place(cpu),shape:[1],stop_gradient:[true],value:-1} : () -> tensor<1xi64>
+    (%5) = "pd_op.full" () {dtype:int64,place:Place(cpu),shape:[1],stop_gradient:[true],value:-1} : () -> tensor<1xi64>
+    (%6, %7, %8) = "pd_op.memory_efficient_attention" (%0, %1, %2, <<NULL VALUE>>, <<NULL VALUE>>, <<NULL VALUE>>, <<NULL VALUE>>, <<NULL VALUE>>, %4, %5) {causal:false,dropout_p:0,is_test:true,scale:-1,stop_gradient:[false,false,false]} : (tensor<4x1024x12x-1xf16>, tensor<4x1024x12x-1xf16>, tensor<4x1024x12x-1xf16>, <<NULL TYPE>>, <<NULL TYPE>>, <<NULL TYPE>>, <<NULL TYPE>>, <<NULL TYPE>>, tensor<1xi64>, tensor<1xi64>) -> tensor<4x1024x12x-1xf16>, tensor<12x4xf32>, tensor<2xi64>
+    (%9) = "cinn_op.fusion" () -> tensor<4x1024x12x-1xf16> {
+        (%10) = "cinn_op.generate_shape" (%6, %3) {output_dim_exprs:[4,1024,12,["Broadcast","S2","S3"]],stop_gradient:[false],symbol_bindings:[["ShapeSymbolBinding","S2",0,3],["ShapeSymbolBinding","S3",1,3]]} : (tensor<4x1024x12x-1xf16>, tensor<4x1024x12x-1xf16>) -> tensor<4xi64>
+        (%11) = "pd_op.expand" (%6, %10) {stop_gradient:[false]} : (tensor<4x1024x12x-1xf16>, tensor<4xi64>) -> tensor<-1x-1x-1x-1xf16>
+        (%12) = "cinn_op.generate_shape" (%6, %3) {output_dim_exprs:[4,1024,12,["Broadcast","S2","S3"]],stop_gradient:[false],symbol_bindings:[["ShapeSymbolBinding","S2",0,3],["ShapeSymbolBinding","S3",1,3]]} : (tensor<4x1024x12x-1xf16>, tensor<4x1024x12x-1xf16>) -> tensor<4xi64>
+        (%13) = "pd_op.expand" (%3, %12) {stop_gradient:[false]} : (tensor<4x1024x12x-1xf16>, tensor<4xi64>) -> tensor<-1x-1x-1x-1xf16>
+        (%14) = "pd_op.add" (%11, %13) {stop_gradient:[false]} : (tensor<-1x-1x-1x-1xf16>, tensor<-1x-1x-1x-1xf16>) -> tensor<4x1024x12x-1xf16>
+        (%15) = "pd_op.full" () {comp_op_name:"pd_op.relu",dtype:float16,place:Place(undefined:0),shape:[],stop_gradient:[true],value:0} : () -> tensor<f16>
+        (%16) = "cinn_op.generate_shape" (%6, %3) {output_dim_exprs:[4,1024,12,["Broadcast","S2","S3"]],stop_gradient:[false],symbol_bindings:[["ShapeSymbolBinding","S2",0,3],["ShapeSymbolBinding","S3",1,3]]} : (tensor<4x1024x12x-1xf16>, tensor<4x1024x12x-1xf16>) -> tensor<4xi64>
+        (%17) = "pd_op.expand" (%15, %16) {stop_gradient:[false]} : (tensor<f16>, tensor<4xi64>) -> tensor<-1x-1x-1x-1xf16>
+        (%18) = "pd_op.maximum" (%14, %17) {comp_op_name:"pd_op.relu",stop_gradient:[false]} : (tensor<4x1024x12x-1xf16>, tensor<-1x-1x-1x-1xf16>) -> tensor<4x1024x12x-1xf16>
+        () = "cf.yield" (%18) {} : (tensor<4x1024x12x-1xf16>) -> 
+    }
+    () = "builtin.shadow_output" (%9) {output_name:"output_0"} : (tensor<4x1024x12x-1xf16>) -> 
+}
+E1103 22:15:21.250488 135692 add_cinn_pass.cc:263] before ApGenericAbstractDrrPass:
+{
+    (%0) = "pd_op.data" () {dtype:float16,name:"q",place:Place(undefined:0),shape:[4,1024,12,-1],stop_gradient:[false]} : () -> tensor<4x1024x12x-1xf16>
+    (%1) = "pd_op.data" () {dtype:float16,name:"k",place:Place(undefined:0),shape:[4,1024,12,-1],stop_gradient:[false]} : () -> tensor<4x1024x12x-1xf16>
+    (%2) = "pd_op.data" () {dtype:float16,name:"v",place:Place(undefined:0),shape:[4,1024,12,-1],stop_gradient:[false]} : () -> tensor<4x1024x12x-1xf16>
+    (%3) = "pd_op.data" () {dtype:float16,name:"bias",place:Place(undefined:0),shape:[4,1024,12,-1],stop_gradient:[false]} : () -> tensor<4x1024x12x-1xf16>
+    (%4) = "pd_op.full" () {dtype:int64,place:Place(cpu),shape:[1],stop_gradient:[true],value:-1} : () -> tensor<1xi64>
+    (%5) = "pd_op.full" () {dtype:int64,place:Place(cpu),shape:[1],stop_gradient:[true],value:-1} : () -> tensor<1xi64>
+    (%6, %7, %8) = "pd_op.memory_efficient_attention" (%0, %1, %2, <<NULL VALUE>>, <<NULL VALUE>>, <<NULL VALUE>>, <<NULL VALUE>>, <<NULL VALUE>>, %4, %5) {causal:false,dropout_p:0,is_test:true,scale:-1,stop_gradient:[false,false,false]} : (tensor<4x1024x12x-1xf16>, tensor<4x1024x12x-1xf16>, tensor<4x1024x12x-1xf16>, <<NULL TYPE>>, <<NULL TYPE>>, <<NULL TYPE>>, <<NULL TYPE>>, <<NULL TYPE>>, tensor<1xi64>, tensor<1xi64>) -> tensor<4x1024x12x-1xf16>, tensor<12x4xf32>, tensor<2xi64>
+    (%9) = "cinn_op.fusion" () -> tensor<4x1024x12x-1xf16> {
+        (%10) = "cinn_op.generate_shape" (%6, %3) {output_dim_exprs:[4,1024,12,["Broadcast","S2","S3"]],stop_gradient:[false],symbol_bindings:[["ShapeSymbolBinding","S2",0,3],["ShapeSymbolBinding","S3",1,3]]} : (tensor<4x1024x12x-1xf16>, tensor<4x1024x12x-1xf16>) -> tensor<4xi64>
+        (%11) = "pd_op.expand" (%6, %10) {stop_gradient:[false]} : (tensor<4x1024x12x-1xf16>, tensor<4xi64>) -> tensor<-1x-1x-1x-1xf16>
+        (%12) = "cinn_op.generate_shape" (%6, %3) {output_dim_exprs:[4,1024,12,["Broadcast","S2","S3"]],stop_gradient:[false],symbol_bindings:[["ShapeSymbolBinding","S2",0,3],["ShapeSymbolBinding","S3",1,3]]} : (tensor<4x1024x12x-1xf16>, tensor<4x1024x12x-1xf16>) -> tensor<4xi64>
+        (%13) = "pd_op.expand" (%3, %12) {stop_gradient:[false]} : (tensor<4x1024x12x-1xf16>, tensor<4xi64>) -> tensor<-1x-1x-1x-1xf16>
+        (%14) = "pd_op.add" (%11, %13) {stop_gradient:[false]} : (tensor<-1x-1x-1x-1xf16>, tensor<-1x-1x-1x-1xf16>) -> tensor<4x1024x12x-1xf16>
+        (%15) = "pd_op.full" () {comp_op_name:"pd_op.relu",dtype:float16,place:Place(undefined:0),shape:[],stop_gradient:[true],value:0} : () -> tensor<f16>
+        (%16) = "cinn_op.generate_shape" (%6, %3) {output_dim_exprs:[4,1024,12,["Broadcast","S2","S3"]],stop_gradient:[false],symbol_bindings:[["ShapeSymbolBinding","S2",0,3],["ShapeSymbolBinding","S3",1,3]]} : (tensor<4x1024x12x-1xf16>, tensor<4x1024x12x-1xf16>) -> tensor<4xi64>
+        (%17) = "pd_op.expand" (%15, %16) {stop_gradient:[false]} : (tensor<f16>, tensor<4xi64>) -> tensor<-1x-1x-1x-1xf16>
+        (%18) = "pd_op.maximum" (%14, %17) {comp_op_name:"pd_op.relu",stop_gradient:[false]} : (tensor<4x1024x12x-1xf16>, tensor<-1x-1x-1x-1xf16>) -> tensor<4x1024x12x-1xf16>
+        () = "cf.yield" (%18) {} : (tensor<4x1024x12x-1xf16>) -> 
+    }
+    () = "builtin.shadow_output" (%9) {output_name:"output_0"} : (tensor<4x1024x12x-1xf16>) -> 
+}
+E1103 22:15:21.317793 135692 add_cinn_pass.cc:266] after ApGenericAbstractDrrPass:
+{
+    (%0) = "pd_op.data" () {dtype:float16,name:"q",place:Place(undefined:0),shape:[4,1024,12,-1],stop_gradient:[false]} : () -> tensor<4x1024x12x-1xf16>
+    (%1) = "pd_op.data" () {dtype:float16,name:"k",place:Place(undefined:0),shape:[4,1024,12,-1],stop_gradient:[false]} : () -> tensor<4x1024x12x-1xf16>
+    (%2) = "pd_op.data" () {dtype:float16,name:"v",place:Place(undefined:0),shape:[4,1024,12,-1],stop_gradient:[false]} : () -> tensor<4x1024x12x-1xf16>
+    (%3) = "pd_op.data" () {dtype:float16,name:"bias",place:Place(undefined:0),shape:[4,1024,12,-1],stop_gradient:[false]} : () -> tensor<4x1024x12x-1xf16>
+    (%4) = "pd_op.full" () {dtype:int64,place:Place(cpu),shape:[1],stop_gradient:[true],value:-1} : () -> tensor<1xi64>
+    (%5) = "pd_op.full" () {dtype:int64,place:Place(cpu),shape:[1],stop_gradient:[true],value:-1} : () -> tensor<1xi64>
+    (%6, %7, %8) = "pd_op.memory_efficient_attention" (%0, %1, %2, <<NULL VALUE>>, <<NULL VALUE>>, <<NULL VALUE>>, <<NULL VALUE>>, <<NULL VALUE>>, %4, %5) {causal:false,dropout_p:0,is_test:true,scale:-1,stop_gradient:[false,false,false]} : (tensor<4x1024x12x-1xf16>, tensor<4x1024x12x-1xf16>, tensor<4x1024x12x-1xf16>, <<NULL TYPE>>, <<NULL TYPE>>, <<NULL TYPE>>, <<NULL TYPE>>, <<NULL TYPE>>, tensor<1xi64>, tensor<1xi64>) -> tensor<4x1024x12x-1xf16>, tensor<12x4xf32>, tensor<2xi64>
+    (%9) = "cinn_op.fusion" () -> tensor<4x1024x12x-1xf16> {
+        (%10) = "cinn_op.generate_shape" (%6, %3) {output_dim_exprs:[4,1024,12,["Broadcast","S2","S3"]],stop_gradient:[false],symbol_bindings:[["ShapeSymbolBinding","S2",0,3],["ShapeSymbolBinding","S3",1,3]]} : (tensor<4x1024x12x-1xf16>, tensor<4x1024x12x-1xf16>) -> tensor<4xi64>
+        (%11) = "pd_op.expand" (%6, %10) {stop_gradient:[false]} : (tensor<4x1024x12x-1xf16>, tensor<4xi64>) -> tensor<-1x-1x-1x-1xf16>
+        (%12) = "cinn_op.generate_shape" (%6, %3) {output_dim_exprs:[4,1024,12,["Broadcast","S2","S3"]],stop_gradient:[false],symbol_bindings:[["ShapeSymbolBinding","S2",0,3],["ShapeSymbolBinding","S3",1,3]]} : (tensor<4x1024x12x-1xf16>, tensor<4x1024x12x-1xf16>) -> tensor<4xi64>
+        (%13) = "pd_op.expand" (%3, %12) {stop_gradient:[false]} : (tensor<4x1024x12x-1xf16>, tensor<4xi64>) -> tensor<-1x-1x-1x-1xf16>
+        (%14) = "pd_op.add" (%11, %13) {stop_gradient:[false]} : (tensor<-1x-1x-1x-1xf16>, tensor<-1x-1x-1x-1xf16>) -> tensor<4x1024x12x-1xf16>
+        (%15) = "pd_op.full" () {comp_op_name:"pd_op.relu",dtype:float16,place:Place(undefined:0),shape:[],stop_gradient:[true],value:0} : () -> tensor<f16>
+        (%16) = "cinn_op.generate_shape" (%6, %3) {output_dim_exprs:[4,1024,12,["Broadcast","S2","S3"]],stop_gradient:[false],symbol_bindings:[["ShapeSymbolBinding","S2",0,3],["ShapeSymbolBinding","S3",1,3]]} : (tensor<4x1024x12x-1xf16>, tensor<4x1024x12x-1xf16>) -> tensor<4xi64>
+        (%17) = "pd_op.expand" (%15, %16) {stop_gradient:[false]} : (tensor<f16>, tensor<4xi64>) -> tensor<-1x-1x-1x-1xf16>
+        (%18) = "pd_op.maximum" (%14, %17) {comp_op_name:"pd_op.relu",stop_gradient:[false]} : (tensor<4x1024x12x-1xf16>, tensor<-1x-1x-1x-1xf16>) -> tensor<4x1024x12x-1xf16>
+        () = "cf.yield" (%18) {} : (tensor<4x1024x12x-1xf16>) -> 
+    }
+    () = "builtin.shadow_output" (%9) {output_name:"output_0"} : (tensor<4x1024x12x-1xf16>) -> 
+}
+I1103 22:15:24.207849 135692 pir_interpreter.cc:1605] New Executor is Running ...
+I1103 22:15:24.208382 135692 pir_interpreter.cc:1629] pir interpreter is running by multi-thread mode ...
+[2026-11-03 22:15:24,562] [    INFO] test_attention_dynamic_head_dim_not_fused.py:97 - Fallback accuracy check passed.
+.
+----------------------------------------------------------------------
+Ran 1 test in 4.339s
+
+OK
+all prim enabled:  True
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/device/cuda/compile_command_util.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/sys/ap.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/sys/__builtin_trivial_op_names__.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/sys/__builtin__.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/sys/__builtin_registry_item__.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/__main__.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/matmul_variadic_tpl.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/conv2d_variadic_ptn.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/variadic_mixin.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/kernel_arg_translator_util.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/kernel_arg_id_util.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/code_gen_value_util.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/topo_drr_pass.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/umprime.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/matmul_variadic_ptn.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/low_level_ir_code_gen_ctx_util.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/index_program_translator_util.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/attention_variadic_ptn.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/abstract_drr.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/index_drr_pass_util.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/epilogue_access_topo_simplify.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/conv2d_variadic_tpl.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/op_compute_translator_util.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/op_conversion_drr_pass.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/index_code_gen_value_util.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/attention_variadic_tpl.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/program_translator_util.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/access_topo_drr.py
+apy_to_axpr_json /work/Paddle/build_paddle/build_cuda12.8_gcc12.3.0_py3.10_cinn/python/paddle/apy/matmul_pass/op_index_translator_util.py
